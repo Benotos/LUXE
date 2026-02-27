@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Active Commissions | Marble Oracle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-color: #030303;
+            font-family: 'Space Grotesk', sans-serif;
+            color: #E0E0E0;
+            overflow-x: hidden;
+        }
+
+        /* Abstract ambient background */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #030303 100%);
+            z-index: -1;
+        }
+
+        .ambient-bg::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4vh 5vw;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .brand {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            color: #D4AF37;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .wallet-btn {
+            background: transparent;
+            border: 1px solid #D4AF37;
+            color: #D4AF37;
+            padding: 10px 20px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .wallet-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Task Grid */
+        .container {
+            padding: 5vh 5vw;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        /* Task Cards */
+        .task-card {
+            background: rgba(15, 15, 15, 0.6);
+            border: 1px solid #222;
+            padding: 30px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            transition: transform 0.4s ease, border-color 0.4s ease;
+            opacity: 0; /* GSAP will reveal */
+            transform: translateY(20px);
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .bounty {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: #030303;
+            border: 1px solid #D4AF37;
+            color: #D4AF37;
+            padding: 5px 15px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .task-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            color: #fff;
+            margin: 0 0 15px 0;
+            line-height: 1.3;
+        }
+
+        .task-desc {
+            font-size: 0.9rem;
+            color: #999;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            border-top: 1px solid #222;
+            padding-top: 15px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #D4AF37;
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: bold;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #fff;
+        }
+
+        /* Upload Modal (Hidden by default) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #0a0a0a;
+            border: 1px solid #D4AF37;
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            transform: scale(0.95);
+            transition: transform 0.4s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px; right: 20px;
+            color: #D4AF37;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none; border: none;
+        }
+
+        .upload-area {
+            border: 1px dashed rgba(212, 175, 55, 0.5);
+            padding: 40px 20px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            background: rgba(212, 175, 55, 0.05);
+            border-color: #D4AF37;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 3vh 5vw; }
+            .task-card { padding: 20px; }
+            .modal-content { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg"></div>
+
+    <nav>
+        <div class="brand">Marble Oracle</div>
+        <button class="wallet-btn">Connect Wallet</button>
+    </nav>
+
+    <div class="container">
+        <h2 style="font-family: 'Cinzel', serif; font-weight: 400; font-size: clamp(1.5rem, 3vw, 2.5rem); text-transform: uppercase; letter-spacing: 4px;">Active Commissions</h2>
+        <p style="color: #888; margin-top: -10px; font-size: 0.9rem;">Prove your entropy. Submit cryptographic evidence.</p>
+
+        <div class="grid">
+            <div class="task-card">
+                <div class="bounty">0.5 ETH</div>
+                <h3 class="task-title">The Golden Hour Secret</h3>
+                <p class="task-desc">Stand on a rooftop at exactly golden hour. Whisper a secret you have never told a living soul into the wind. The AI will judge your sincerity through micro-expressions.</p>
+                <div class="meta">
+                    <span>Format: Video (4K)</span>
+                    <span>Time Left: 12h 45m</span>
+                </div>
+                <button class="submit-btn" onclick="openModal('Task 01: Golden Hour Secret')">Submit Proof</button>
+            </div>
+
+            <div class="task-card">
+                <div class="bounty">1,200 USDC</div>
+                <h3 class="task-title">Blindfolded Gastronomy</h3>
+                <p class="task-desc">Procure a rare food item native to your region. Consume it blindfolded in a public space. We seek the raw, uncalculated human reaction to texture and taste.</p>
+                <div class="meta">
+                    <span>Format: Raw MP4</span>
+                    <span>Time Left: 08h 12m</span>
+                </div>
+                <button class="submit-btn" onclick="openModal('Task 02: Blindfolded Gastronomy')">Submit Proof</button>
+            </div>
+
+            <div class="task-card">
+                <div class="bounty">2.0 $MARBLE</div>
+                <h3 class="task-title">The Stolen Shadow</h3>
+                <p class="task-desc">Find a brutalist concrete structure. Photograph the shadow of a passing stranger across its surface. The geometry must be perfect, the subject oblivious.</p>
+                <div class="meta">
+                    <span>Format: High-Res JPG</span>
+                    <span>Time Left: 22h 05m</span>
+                </div>
+                <button class="submit-btn" onclick="openModal('Task 03: The Stolen Shadow')">Submit Proof</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <h3 style="font-family: 'Cinzel', serif; color: #D4AF37; margin-top: 0;" id="modalTitle">Submit Proof</h3>
+            <p style="color: #888; font-size: 0.85rem;">Upload your sacrifice to the Replicate AI vision node for verification.</p>
+            
+            <div class="upload-area" id="dropZone">
+                <div class="upload-icon">👁️</div>
+                <div style="color: #ccc; font-size: 0.9rem;">Tap to select or drag file here</div>
+                <input type="file" id="fileInput" style="display: none;" accept="image/*,video/*">
+            </div>
+
+            <button class="submit-btn" style="background: #222; color: #888; cursor: not-allowed;" id="confirmBtn">Awaiting File...</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+        // --- 1. ENTRANCE ANIMATIONS ---
+        window.onload = () => {
+            gsap.to('.task-card', {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.15,
+                ease: "power3.out",
+                delay: 0.2
+            });
+        };
+
+        // --- 2. MODAL LOGIC ---
+        const modal = document.getElementById('uploadModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const confirmBtn = document.getElementById('confirmBtn');
+
+        function openModal(taskName) {
+            modalTitle.innerText = taskName;
+            modal.classList.add('active');
+            resetUploadState();
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        // Close on background click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // --- 3. UPLOAD UX (Simulated) ---
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // Drag and Drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                dropZone.innerHTML = `<div style="color: #D4AF37; font-weight: bold;">${file.name}</div><div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Ready for verification</div>`;
+                
+                // Activate Confirm Button
+                confirmBtn.style.background = '#D4AF37';
+                confirmBtn.style.color = '#000';
+                confirmBtn.style.cursor = 'pointer';
+                confirmBtn.innerText = 'Initiate Verification Sequence';
+                
+                // Simulate Upload
+                confirmBtn.onclick = () => {
+                    confirmBtn.innerText = 'Scanning pixels...';
+                    setTimeout(() => {
+                        confirmBtn.innerText = 'Sacrifice Accepted';
+                        confirmBtn.style.background = '#4CAF50';
+                        setTimeout(closeModal, 1500);
+                    }, 2000);
+                };
+            }
+        }
+
+        function resetUploadState() {
+            dropZone.innerHTML = `<div class="upload-icon">👁️</div><div style="color: #ccc; font-size: 0.9rem;">Tap to select or drag file here</div>`;
+            confirmBtn.style.background = '#222';
+            confirmBtn.style.color = '#888';
+            confirmBtn.style.cursor = 'not-allowed';
+            confirmBtn.innerText = 'Awaiting File...';
+            fileInput.value = '';
+            confirmBtn.onclick = null;
+        }
+    </script>
+</body>
+</html>

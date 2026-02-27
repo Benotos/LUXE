@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marble Oracle | Commissioning Human Souls</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #030303;
+            overflow: hidden;
+            font-family: 'Space Grotesk', sans-serif;
+            color: #E0E0E0;
+        }
+
+        #webgl-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* UI Overlay */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none; /* Let clicks pass to 3D background */
+        }
+
+        .hero-text {
+            text-align: center;
+            opacity: 0; /* Hidden for GSAP animation */
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 4rem;
+            font-weight: 400;
+            letter-spacing: 12px;
+            color: #D4AF37; /* Gold */
+            margin: 0;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            margin-top: 20px;
+            color: #A0A0A0;
+            text-transform: uppercase;
+        }
+
+        .cryptic-quote {
+            margin-top: 40px;
+            font-style: italic;
+            font-size: 0.9rem;
+            color: #666;
+            max-width: 400px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        /* The Ritual Button */
+        .enter-btn {
+            margin-top: 60px;
+            padding: 15px 40px;
+            background: transparent;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            color: #D4AF37;
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            pointer-events: auto; /* Re-enable clicks */
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .enter-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+            border-color: #D4AF37;
+        }
+
+        .status-bar {
+            position: absolute;
+            bottom: 30px;
+            left: 40px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background-color: #D4AF37;
+            border-radius: 50%;
+            animation: pulsate 2s infinite;
+        }
+
+        @keyframes pulsate {
+            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="webgl-container"></div>
+
+    <div id="ui-layer">
+        <div class="hero-text">
+            <h1>Marble Oracle</h1>
+            <p class="subtitle">We buy human souls.</p>
+            <p class="cryptic-quote">"Algorithms possess intelligence. Humans possess entropy. We pay a premium for your beautiful, destructive chaos."</p>
+            <button class="enter-btn" onclick="initiateRitual()">Begin The Ritual</button>
+        </div>
+        
+        <div class="status-bar">
+            <div class="pulse"></div>
+            ORACLE STATUS: AWAITING SACRIFICE
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+        // --- 1. THREE.JS SCENE SETUP ---
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2('#030303', 0.05);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // --- 2. THE ORACLE ORB (Dark Marble Aesthetic) ---
+        const geometry = new THREE.SphereGeometry(1.5, 64, 64);
+        const material = new THREE.MeshPhysicalMaterial({
+            color: 0x111111,
+            metalness: 0.9,
+            roughness: 0.1,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1,
+            wireframe: false
+        });
+        const orb = new THREE.Mesh(geometry, material);
+        scene.add(orb);
+
+        // Add a wireframe cage around it for the "occult geometry" vibe
+        const wireMaterial = new THREE.MeshBasicMaterial({ color: 0xD4AF37, wireframe: true, transparent: true, opacity: 0.1 });
+        const wireOrb = new THREE.Mesh(geometry, wireMaterial);
+        wireOrb.scale.set(1.05, 1.05, 1.05);
+        scene.add(wireOrb);
+
+        // --- 3. GOLD DUST PARTICLES ---
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 2000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            // Spread particles across a wide area
+            posArray[i] = (Math.random() - 0.5) * 15;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            color: 0xD4AF37,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // --- 4. LIGHTING ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xD4AF37, 2, 10);
+        pointLight.position.set(2, 3, 4);
+        scene.add(pointLight);
+
+        const backLight = new THREE.PointLight(0x333333, 5, 10);
+        backLight.position.set(-2, -3, -4);
+        scene.add(backLight);
+
+        // --- 5. MOUSE INTERACTION ---
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+        });
+
+        // --- 6. ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Smooth mouse follow tracking
+            targetX = mouseX * 0.001;
+            targetY = mouseY * 0.001;
+
+            orb.rotation.y += 0.005;
+            orb.rotation.x += 0.002;
+            
+            wireOrb.rotation.y -= 0.002;
+            wireOrb.rotation.x -= 0.005;
+
+            // Orb reacts to mouse
+            orb.rotation.y += 0.05 * (targetX - orb.rotation.y);
+            orb.rotation.x += 0.05 * (targetY - orb.rotation.x);
+
+            // Particles slowly drift
+            particlesMesh.rotation.y = -elapsedTime * 0.05;
+            particlesMesh.rotation.x = elapsedTime * 0.02;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- 7. GSAP ENTRANCE ANIMATIONS ---
+        window.onload = () => {
+            gsap.to('.hero-text', { opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.5 });
+            gsap.from('h1', { y: 30, duration: 1.5, ease: "power3.out", delay: 0.8 });
+            gsap.from('.subtitle', { y: 20, opacity: 0, duration: 1.5, ease: "power3.out", delay: 1.2 });
+            gsap.from('.cryptic-quote', { opacity: 0, duration: 2, ease: "power2.inOut", delay: 2 });
+            gsap.from('.enter-btn', { y: 20, opacity: 0, duration: 1, ease: "power3.out", delay: 2.5 });
+        };
+
+        // --- 8. RESIZE HANDLER ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- 9. THE RITUAL (Button Click) ---
+        function initiateRitual() {
+            // Glitch out the UI
+            gsap.to('.hero-text', { opacity: 0, duration: 0.5, ease: "power2.in" });
+            
+            // Zoom camera into the orb
+            gsap.to(camera.position, { z: 1.5, duration: 2, ease: "power4.inOut" });
+            
+            // Spin particles aggressively
+            gsap.to(particlesMesh.rotation, { y: "+=5", duration: 2, ease: "power4.inOut" });
+
+            // Simulate routing to the next page
+            setTimeout(() => {
+                // window.location.href = 'tasks.html';
+                console.log("Routing to Dashboard/Tasks...");
+                alert("The Oracle accepts you. Transitioning to the Task Dashboard...");
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

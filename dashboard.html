@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Oracle Feed | Global Tasks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #030303;
+            overflow: hidden;
+            font-family: 'Space Grotesk', sans-serif;
+            color: #E0E0E0;
+            /* Prevent pull-to-refresh on mobile */
+            overscroll-behavior-y: contain; 
+        }
+
+        #webgl-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Responsive UI Overlay */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 5vh 5vw;
+            box-sizing: border-box;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem); /* Auto-scales for mobile */
+            color: #D4AF37;
+            margin: 0;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .live-status {
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            letter-spacing: 2px;
+            color: #A0A0A0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(20, 20, 20, 0.8);
+            padding: 8px 16px;
+            border: 1px solid #333;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .pulse {
+            width: 6px;
+            height: 6px;
+            background-color: #ff3333;
+            border-radius: 50%;
+            animation: pulsate 1.5s infinite;
+        }
+
+        /* Mobile-friendly bottom feed */
+        .feed-container {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0) 100%);
+            padding: 20px;
+            pointer-events: auto;
+            border-left: 1px solid rgba(212, 175, 55, 0.3);
+            align-self: flex-start;
+        }
+
+        @media (max-width: 768px) {
+            .feed-container {
+                max-width: 100%;
+                border-left: none;
+                border-top: 1px solid rgba(212, 175, 55, 0.3);
+                padding: 15px 0;
+            }
+            #ui-layer {
+                padding: 3vh 4vw;
+            }
+        }
+
+        .feed-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #222;
+            opacity: 0; /* For GSAP */
+        }
+
+        .feed-location {
+            font-size: 0.75rem;
+            color: #D4AF37;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .feed-action {
+            font-size: 0.9rem;
+            color: #ddd;
+            line-height: 1.4;
+        }
+
+        .feed-payout {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 5px;
+            font-size: 0.85rem;
+        }
+
+        @keyframes pulsate {
+            0% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(255, 51, 51, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="webgl-container"></div>
+
+    <div id="ui-layer">
+        <header>
+            <h1>Oracle Feed</h1>
+            <div class="live-status">
+                <div class="pulse"></div>
+                LIVE OBSERVATION
+            </div>
+        </header>
+
+        <div class="feed-container">
+            <div class="feed-item">
+                <div class="feed-location">Tokyo, JP</div>
+                <div class="feed-action">"Whispered a secret to the wind from a rooftop."</div>
+                <div class="feed-payout">0.05 ETH Transferred</div>
+            </div>
+            <div class="feed-item">
+                <div class="feed-location">Abeokuta, NG</div>
+                <div class="feed-action">"Sacrificed digital gold into the abyss."</div>
+                <div class="feed-payout">250 USDC Transferred</div>
+            </div>
+            <div class="feed-item">
+                <div class="feed-location">New York, US</div>
+                <div class="feed-action">"Photographed the shadow of a passing stranger."</div>
+                <div class="feed-payout">0.03 ETH Transferred</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+        // --- 1. SETUP ---
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2('#030303', 0.04);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
+        // Move camera further back on mobile to ensure the globe fits on screen
+        const isMobile = window.innerWidth < 768;
+        camera.position.z = isMobile ? 4.5 : 3;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        // MOBILE OPTIMIZATION: Cap pixel ratio at 2 to prevent mobile GPU thermal throttling
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+        container.appendChild(renderer.domElement);
+
+        // --- 2. HOLOGRAPHIC GLOBE ---
+        const globeGroup = new THREE.Group();
+        scene.add(globeGroup);
+
+        // Wireframe Sphere
+        const globeGeo = new THREE.SphereGeometry(1.5, 32, 32);
+        const globeMat = new THREE.MeshBasicMaterial({ 
+            color: 0x333333, 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0.3 
+        });
+        const globe = new THREE.Mesh(globeGeo, globeMat);
+        globeGroup.add(globe);
+
+        // Inner solid sphere to block back lines
+        const innerGeo = new THREE.SphereGeometry(1.48, 32, 32);
+        const innerMat = new THREE.MeshBasicMaterial({ color: 0x050505 });
+        const innerGlobe = new THREE.Mesh(innerGeo, innerMat);
+        globeGroup.add(innerGlobe);
+
+        // Highlight ring (Equator-ish)
+        const ringGeo = new THREE.TorusGeometry(1.6, 0.005, 16, 100);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0xD4AF37, transparent: true, opacity: 0.5 });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.PI / 2;
+        globeGroup.add(ring);
+
+        // --- 3. DATA PINS (Locations) ---
+        // Function to convert Lat/Lon to 3D sphere coordinates
+        function calcPosFromLatLonRad(lat, lon, radius) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lon + 180) * (Math.PI / 180);
+            const x = -(radius * Math.sin(phi) * Math.cos(theta));
+            const z = (radius * Math.sin(phi) * Math.sin(theta));
+            const y = (radius * Math.cos(phi));
+            return new THREE.Vector3(x, y, z);
+        }
+
+        const locations = [
+            { lat: 35.6762, lon: 139.6503, color: 0xff3333 }, // Tokyo
+            { lat: 7.1608, lon: 3.3483, color: 0xD4AF37 },    // Abeokuta
+            { lat: 40.7128, lon: -74.0060, color: 0x33aaff }  // NY
+        ];
+
+        locations.forEach(loc => {
+            const pos = calcPosFromLatLonRad(loc.lat, loc.lon, 1.5);
+            const pinGeo = new THREE.SphereGeometry(0.04, 16, 16);
+            const pinMat = new THREE.MeshBasicMaterial({ color: loc.color });
+            const pin = new THREE.Mesh(pinGeo, pinMat);
+            pin.position.copy(pos);
+            globeGroup.add(pin);
+
+            // Add a little glowing aura to the pins
+            const auraGeo = new THREE.SphereGeometry(0.08, 16, 16);
+            const auraMat = new THREE.MeshBasicMaterial({ color: loc.color, transparent: true, opacity: 0.3 });
+            const aura = new THREE.Mesh(auraGeo, auraMat);
+            aura.position.copy(pos);
+            globeGroup.add(aura);
+        });
+
+        // --- 4. RESPONSIVE CONTROLS (Mouse + Touch) ---
+        let targetRotationX = 0;
+        let targetRotationY = 0;
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        // Handle both Mouse and Touch
+        function onPointerDown(e) {
+            isDragging = true;
+            previousMousePosition = { 
+                x: e.touches ? e.touches[0].clientX : e.clientX, 
+                y: e.touches ? e.touches[0].clientY : e.clientY 
+            };
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging) return;
+            const currentX = e.touches ? e.touches[0].clientX : e.clientX;
+            const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const deltaX = currentX - previousMousePosition.x;
+            const deltaY = currentY - previousMousePosition.y;
+
+            targetRotationY += deltaX * 0.005;
+            targetRotationX += deltaY * 0.005;
+
+            previousMousePosition = { x: currentX, y: currentY };
+        }
+
+        function onPointerUp() {
+            isDragging = false;
+        }
+
+        document.addEventListener('mousedown', onPointerDown);
+        document.addEventListener('mousemove', onPointerMove);
+        document.addEventListener('mouseup', onPointerUp);
+        
+        // Mobile touch equivalents
+        document.addEventListener('touchstart', onPointerDown, {passive: false});
+        document.addEventListener('touchmove', onPointerMove, {passive: false});
+        document.addEventListener('touchend', onPointerUp);
+
+        // --- 5. ANIMATION LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Smooth rotation interpolation
+            globeGroup.rotation.y += (targetRotationY - globeGroup.rotation.y) * 0.1;
+            globeGroup.rotation.x += (targetRotationX - globeGroup.rotation.x) * 0.1;
+            
+            // Auto-spin slowly if not interacting
+            if(!isDragging) {
+                targetRotationY += 0.002;
+            }
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- 6. RESIZE HANDLER ---
+        window.addEventListener('resize', () => {
+            const isMob = window.innerWidth < 768;
+            camera.position.z = isMob ? 4.5 : 3;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- 7. UI ANIMATIONS ---
+        window.onload = () => {
+            gsap.to('.feed-item', { 
+                opacity: 1, 
+                y: -10, 
+                duration: 0.8, 
+                stagger: 0.2, 
+                ease: "power2.out", 
+                delay: 0.5 
+            });
+            // Initial spin effect for dramatic entrance
+            gsap.from(globeGroup.rotation, { y: -Math.PI, duration: 2.5, ease: "power3.out" });
+        };
+    </script>
+</body>
+</html>

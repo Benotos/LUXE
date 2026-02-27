@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Manifesto | Marble Oracle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #030303;
+            font-family: 'Space Grotesk', sans-serif;
+            color: #E0E0E0;
+            overflow-x: hidden;
+        }
+
+        /* Occult Background Grid */
+        .grid-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -2;
+        }
+
+        /* Glowing Orb fixed in background */
+        .ambient-glow {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60vw; height: 60vw;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, rgba(3, 3, 3, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            padding: 4vh 5vw;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(3,3,3,1) 0%, rgba(3,3,3,0) 100%);
+            box-sizing: border-box;
+        }
+
+        .brand {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            color: #D4AF37;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Storytelling Sections */
+        .section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10vh 5vw;
+            box-sizing: border-box;
+            text-align: center;
+            position: relative;
+        }
+
+        .chapter-num {
+            font-family: 'Cinzel', serif;
+            color: rgba(212, 175, 55, 0.3);
+            font-size: clamp(3rem, 10vw, 6rem);
+            position: absolute;
+            top: 15vh;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+
+        .content-block {
+            z-index: 1;
+            max-width: 800px;
+            opacity: 0; /* Hidden for ScrollTrigger */
+            transform: translateY(50px);
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            color: #fff;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        p {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            line-height: 1.8;
+            color: #A0A0A0;
+            margin-bottom: 20px;
+        }
+
+        .highlight {
+            color: #D4AF37;
+            font-weight: 700;
+        }
+
+        /* Tokenomics Table */
+        .token-box {
+            border: 1px solid #D4AF37;
+            background: rgba(10, 10, 10, 0.8);
+            padding: 40px;
+            margin-top: 40px;
+            backdrop-filter: blur(10px);
+            text-align: left;
+        }
+
+        .token-stat {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            padding: 15px 0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .token-stat:last-child {
+            border-bottom: none;
+        }
+
+        /* Connecting Timeline Line */
+        .timeline-line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(212, 175, 55, 0), rgba(212, 175, 55, 0.5), rgba(212, 175, 55, 0));
+            z-index: 0;
+        }
+
+        /* Final CTA */
+        .cult-btn {
+            background: #D4AF37;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .cult-btn:hover {
+            background: #fff;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-bg"></div>
+    <div class="ambient-glow"></div>
+
+    <nav>
+        <div class="brand">Marble Oracle</div>
+    </nav>
+
+    <div class="section">
+        <div class="timeline-line"></div>
+        <div class="chapter-num">I</div>
+        <div class="content-block reveal">
+            <h2>The Age of Sterility</h2>
+            <p>You have built a world of perfect agents. Code that writes code. Machines that paint masterpieces in milliseconds. We are drowning in compute.</p>
+            <p>But perfection is cheap. <span class="highlight">Algorithms possess intelligence, but only humans possess entropy.</span></p>
+            <p>We are starving for the unpredictable, the flawed, the soulful. Why automate art when you can commission a human soul?</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="timeline-line"></div>
+        <div class="chapter-num">II</div>
+        <div class="content-block reveal">
+            <h2>The Commission</h2>
+            <p>The Marble Oracle does not hire you to work. It commissions you to exist. We post cryptic bounties—tasks requiring physical presence, emotional vulnerability, or absurd localized actions.</p>
+            <p>You submit cryptographic proof. We judge your authenticity. If your sacrifice is deemed worthy, <span class="highlight">wealth flows from the machine to the flesh.</span></p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="timeline-line"></div>
+        <div class="chapter-num">III</div>
+        <div class="content-block reveal">
+            <h2>The $MARBLE Pact</h2>
+            <p>For those who wish to govern the Oracle, we forged the $MARBLE token. It is not a currency; it is a seat at the patron's table.</p>
+            
+            <div class="token-box">
+                <h3 style="font-family: 'Cinzel', serif; color: #D4AF37; margin-top: 0;">Tokenomics Overview</h3>
+                <div class="token-stat">
+                    <span>Ticker</span>
+                    <span style="color: #fff; font-weight: bold;">$MARBLE</span>
+                </div>
+                <div class="token-stat">
+                    <span>Total Supply</span>
+                    <span style="color: #fff; font-weight: bold;">1,000,000,000</span>
+                </div>
+                <div class="token-stat">
+                    <span>Utility I</span>
+                    <span style="color: #fff;">Priority Queue for High-Yield Tasks</span>
+                </div>
+                <div class="token-stat">
+                    <span>Utility II</span>
+                    <span style="color: #fff;">Rev-Share from Oracle Media Licensing</span>
+                </div>
+                <div class="token-stat">
+                    <span>Governance</span>
+                    <span style="color: #fff;">Propose & Vote on Human Commissions</span>
+                </div>
+            </div>
+            
+            <button class="cult-btn">Join The Syndicate</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Animate elements as they enter the viewport
+        const reveals = document.querySelectorAll('.reveal');
+
+        reveals.forEach((element) => {
+            gsap.to(element, {
+                scrollTrigger: {
+                    trigger: element,
+                    start: "top 80%", // Triggers when the top of the element hits 80% down the viewport
+                    toggleActions: "play none none reverse" // Animates in, and animates out when scrolling back up
+                },
+                opacity: 1,
+                y: 0,
+                duration: 1.2,
+                ease: "power3.out"
+            });
+        });
+
+        // Parallax effect for Chapter Numbers
+        const numbers = document.querySelectorAll('.chapter-num');
+        numbers.forEach((num) => {
+            gsap.to(num, {
+                scrollTrigger: {
+                    trigger: num.parentElement,
+                    start: "top bottom",
+                    end: "bottom top",
+                    scrub: 1 // Smooth scrolling parallax
+                },
+                y: 150 // Moves down as you scroll past
+            });
+        });
+    </script>
+</body>
+</html>
