@@ -36,23 +36,54 @@
             pointer-events: none;
         }
 
-        /* Navigation */
-        nav {
+        /* Unified Global Navigation */
+        #global-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 4vh 5vw;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 2vh 5vw;
+            box-sizing: border-box;
+            background: linear-gradient(to bottom, rgba(3,3,3,0.95) 0%, rgba(3,3,3,0) 100%);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            pointer-events: auto;
         }
 
-        .brand {
+        .nav-brand {
             font-family: 'Cinzel', serif;
-            font-size: clamp(1.2rem, 3vw, 2rem);
             color: #D4AF37;
-            letter-spacing: 3px;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            text-decoration: none;
+            letter-spacing: 2px;
             text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
 
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            color: #A0A0A0;
+            text-decoration: none;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #D4AF37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        /* Wallet Button */
         .wallet-btn {
             background: transparent;
             border: 1px solid #D4AF37;
@@ -64,6 +95,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .wallet-btn:hover {
@@ -71,18 +103,24 @@
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
         }
 
-        /* Task Grid */
+        /* Task Grid Container */
         .container {
-            padding: 5vh 5vw;
+            padding: 12vh 5vw 5vh 5vw; /* Increased top padding to clear nav */
             max-width: 1400px;
             margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 40px;
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
-            margin-top: 40px;
         }
 
         /* Task Cards */
@@ -167,7 +205,7 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
-            z-index: 100;
+            z-index: 10000; /* Must be higher than nav */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -224,8 +262,29 @@
             margin-bottom: 10px;
         }
 
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
-            .container { padding: 3vh 5vw; }
+            #global-nav {
+                flex-direction: column;
+                gap: 15px;
+                padding: 3vh 2vw;
+            }
+            .nav-links {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .nav-links a {
+                font-size: 0.7rem;
+            }
+            .container { 
+                padding: 18vh 5vw 5vh 5vw; /* Deeper padding for mobile stacked nav */
+            }
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
             .task-card { padding: 20px; }
             .modal-content { padding: 25px; }
         }
@@ -235,14 +294,24 @@
 
     <div class="ambient-bg"></div>
 
-    <nav>
-        <div class="brand">Marble Oracle</div>
-        <button class="wallet-btn">Connect Wallet</button>
+    <nav id="global-nav">
+        <a href="index.html" class="nav-brand">Marble Oracle</a>
+        <div class="nav-links">
+            <a href="index.html">The Ritual</a>
+            <a href="dashboard.html">Oracle Feed</a>
+            <a href="tasks.html">Commissions</a>
+            <a href="manifesto.html">Manifesto</a>
+        </div>
     </nav>
 
     <div class="container">
-        <h2 style="font-family: 'Cinzel', serif; font-weight: 400; font-size: clamp(1.5rem, 3vw, 2.5rem); text-transform: uppercase; letter-spacing: 4px;">Active Commissions</h2>
-        <p style="color: #888; margin-top: -10px; font-size: 0.9rem;">Prove your entropy. Submit cryptographic evidence.</p>
+        <div class="page-header">
+            <div>
+                <h2 style="font-family: 'Cinzel', serif; font-weight: 400; font-size: clamp(1.5rem, 3vw, 2.5rem); text-transform: uppercase; letter-spacing: 4px; margin: 0 0 10px 0;">Active Commissions</h2>
+                <p style="color: #888; margin: 0; font-size: 0.9rem;">Prove your entropy. Submit cryptographic evidence.</p>
+            </div>
+            <button class="wallet-btn">Connect Wallet</button>
+        </div>
 
         <div class="grid">
             <div class="task-card">

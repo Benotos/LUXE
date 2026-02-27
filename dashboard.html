@@ -28,6 +28,53 @@
             z-index: 1;
         }
 
+        /* Unified Global Navigation */
+        #global-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2vh 5vw;
+            box-sizing: border-box;
+            background: linear-gradient(to bottom, rgba(3,3,3,0.95) 0%, rgba(3,3,3,0) 100%);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            pointer-events: auto;
+        }
+
+        .nav-brand {
+            font-family: 'Cinzel', serif;
+            color: #D4AF37;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            color: #A0A0A0;
+            text-decoration: none;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #D4AF37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
         /* Responsive UI Overlay */
         #ui-layer {
             position: absolute;
@@ -40,7 +87,8 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 5vh 5vw;
+            /* Increased top padding (12vh) so it clears the global nav */
+            padding: 12vh 5vw 5vh 5vw;
             box-sizing: border-box;
         }
 
@@ -94,14 +142,28 @@
         }
 
         @media (max-width: 768px) {
+            #global-nav {
+                flex-direction: column;
+                gap: 15px;
+                padding: 3vh 2vw;
+            }
+            .nav-links {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .nav-links a {
+                font-size: 0.7rem;
+            }
+            #ui-layer {
+                /* Increased top padding for mobile to clear stacked nav */
+                padding: 18vh 4vw 3vh 4vw;
+            }
             .feed-container {
                 max-width: 100%;
                 border-left: none;
                 border-top: 1px solid rgba(212, 175, 55, 0.3);
                 padding: 15px 0;
-            }
-            #ui-layer {
-                padding: 3vh 4vw;
             }
         }
 
@@ -142,6 +204,16 @@
     </style>
 </head>
 <body>
+
+    <nav id="global-nav">
+        <a href="index.html" class="nav-brand">Marble Oracle</a>
+        <div class="nav-links">
+            <a href="index.html">The Ritual</a>
+            <a href="dashboard.html">Oracle Feed</a>
+            <a href="tasks.html">Commissions</a>
+            <a href="manifesto.html">Manifesto</a>
+        </div>
+    </nav>
 
     <div id="webgl-container"></div>
 
@@ -336,6 +408,7 @@
             // Initial spin effect for dramatic entrance
             gsap.from(globeGroup.rotation, { y: -Math.PI, duration: 2.5, ease: "power3.out" });
         };
+        
     </script>
 </body>
 </html>

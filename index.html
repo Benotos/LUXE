@@ -26,6 +26,69 @@
             z-index: 1;
         }
 
+        /* Unified Global Navigation */
+        #global-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2vh 5vw;
+            box-sizing: border-box;
+            background: linear-gradient(to bottom, rgba(3,3,3,0.95) 0%, rgba(3,3,3,0) 100%);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            pointer-events: auto;
+        }
+
+        .nav-brand {
+            font-family: 'Cinzel', serif;
+            color: #D4AF37;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            color: #A0A0A0;
+            text-decoration: none;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #D4AF37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            #global-nav {
+                flex-direction: column;
+                gap: 15px;
+                padding: 3vh 2vw;
+            }
+            .nav-links {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .nav-links a {
+                font-size: 0.7rem;
+            }
+        }
+
         /* UI Overlay */
         #ui-layer {
             position: absolute;
@@ -48,7 +111,7 @@
 
         h1 {
             font-family: 'Cinzel', serif;
-            font-size: 4rem;
+            font-size: clamp(2rem, 6vw, 4rem); /* Added clamp for mobile scaling */
             font-weight: 400;
             letter-spacing: 12px;
             color: #D4AF37; /* Gold */
@@ -58,7 +121,7 @@
         }
 
         p.subtitle {
-            font-size: 1.2rem;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
             letter-spacing: 4px;
             margin-top: 20px;
             color: #A0A0A0;
@@ -68,9 +131,10 @@
         .cryptic-quote {
             margin-top: 40px;
             font-style: italic;
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
             color: #666;
             max-width: 400px;
+            padding: 0 20px;
             line-height: 1.6;
             text-align: center;
         }
@@ -110,6 +174,14 @@
             gap: 10px;
         }
 
+        @media (max-width: 768px) {
+            .status-bar {
+                left: 50%;
+                transform: translateX(-50%);
+                width: max-content;
+            }
+        }
+
         .pulse {
             width: 8px;
             height: 8px;
@@ -126,6 +198,16 @@
     </style>
 </head>
 <body>
+
+    <nav id="global-nav">
+        <a href="index.html" class="nav-brand">Marble Oracle</a>
+        <div class="nav-links">
+            <a href="index.html">The Ritual</a>
+            <a href="dashboard.html">Oracle Feed</a>
+            <a href="tasks.html">Commissions</a>
+            <a href="manifesto.html">Manifesto</a>
+        </div>
+    </nav>
 
     <div id="webgl-container"></div>
 
@@ -157,7 +239,7 @@
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Mobile optimization
         container.appendChild(renderer.domElement);
 
         // --- 2. THE ORACLE ORB (Dark Marble Aesthetic) ---
@@ -185,7 +267,6 @@
         const posArray = new Float32Array(particlesCount * 3);
 
         for(let i = 0; i < particlesCount * 3; i++) {
-            // Spread particles across a wide area
             posArray[i] = (Math.random() - 0.5) * 15;
         }
 
@@ -221,9 +302,15 @@
         const windowHalfX = window.innerWidth / 2;
         const windowHalfY = window.innerHeight / 2;
 
+        // Mouse for desktop, touch for mobile
         document.addEventListener('mousemove', (event) => {
             mouseX = (event.clientX - windowHalfX);
             mouseY = (event.clientY - windowHalfY);
+        });
+
+        document.addEventListener('touchmove', (event) => {
+            mouseX = (event.touches[0].clientX - windowHalfX);
+            mouseY = (event.touches[0].clientY - windowHalfY);
         });
 
         // --- 6. ANIMATION LOOP ---
@@ -262,6 +349,8 @@
             gsap.from('.subtitle', { y: 20, opacity: 0, duration: 1.5, ease: "power3.out", delay: 1.2 });
             gsap.from('.cryptic-quote', { opacity: 0, duration: 2, ease: "power2.inOut", delay: 2 });
             gsap.from('.enter-btn', { y: 20, opacity: 0, duration: 1, ease: "power3.out", delay: 2.5 });
+            // Drop down nav
+            gsap.from('#global-nav', { y: -50, opacity: 0, duration: 1.5, ease: "power3.out" });
         };
 
         // --- 8. RESIZE HANDLER ---
@@ -275,6 +364,8 @@
         function initiateRitual() {
             // Glitch out the UI
             gsap.to('.hero-text', { opacity: 0, duration: 0.5, ease: "power2.in" });
+            gsap.to('#global-nav', { opacity: 0, duration: 0.5, ease: "power2.in" });
+            gsap.to('.status-bar', { opacity: 0, duration: 0.5, ease: "power2.in" });
             
             // Zoom camera into the orb
             gsap.to(camera.position, { z: 1.5, duration: 2, ease: "power4.inOut" });
@@ -282,11 +373,9 @@
             // Spin particles aggressively
             gsap.to(particlesMesh.rotation, { y: "+=5", duration: 2, ease: "power4.inOut" });
 
-            // Simulate routing to the next page
+            // Route to the Tasks page
             setTimeout(() => {
-                // window.location.href = 'tasks.html';
-                console.log("Routing to Dashboard/Tasks...");
-                alert("The Oracle accepts you. Transitioning to the Task Dashboard...");
+                window.location.href = 'tasks.html';
             }, 2000);
         }
     </script>
