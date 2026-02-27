@@ -111,7 +111,7 @@
 
         h1 {
             font-family: 'Cinzel', serif;
-            font-size: clamp(2rem, 6vw, 4rem); /* Added clamp for mobile scaling */
+            font-size: clamp(2rem, 6vw, 4rem);
             font-weight: 400;
             letter-spacing: 12px;
             color: #D4AF37; /* Gold */
@@ -154,12 +154,64 @@
             transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .enter-btn:hover {
             background: rgba(212, 175, 55, 0.1);
             box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
             border-color: #D4AF37;
+        }
+
+        /* CA Copy Tab */
+        .ca-container {
+            margin-top: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 10px 20px;
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #D4AF37;
+            cursor: pointer;
+            pointer-events: auto; /* Important to allow clicks */
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            opacity: 0; /* Hidden for GSAP */
+        }
+
+        .ca-container:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #D4AF37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+
+        .ca-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.75rem;
+            color: #888;
+            letter-spacing: 2px;
+        }
+
+        .ca-address {
+            font-family: monospace;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        .copy-icon {
+            width: 14px;
+            height: 14px;
+            fill: #D4AF37;
+            transition: transform 0.3s ease;
+        }
+
+        .ca-container:hover .copy-icon {
+            transform: scale(1.15);
         }
 
         .status-bar {
@@ -216,7 +268,16 @@
             <h1>Marble Oracle</h1>
             <p class="subtitle">We buy human souls.</p>
             <p class="cryptic-quote">"Algorithms possess intelligence. Humans possess entropy. We pay a premium for your beautiful, destructive chaos."</p>
+            
             <button class="enter-btn" onclick="initiateRitual()">Begin The Ritual</button>
+            
+            <div class="ca-container" onclick="copyCA()">
+                <span class="ca-label">CA:</span>
+                <span class="ca-address" id="ca-text">TBA_CONTRACT_ADDRESS_HERE</span>
+                <svg class="copy-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                </svg>
+            </div>
         </div>
         
         <div class="status-bar">
@@ -342,28 +403,52 @@
         }
         animate();
 
-        // --- 7. GSAP ENTRANCE ANIMATIONS ---
+        // --- 7. COPY CA LOGIC ---
+        function copyCA() {
+            // Replace this with your actual Contract Address when ready
+            const contractAddress = "0xYOUR_MARBLE_CONTRACT_ADDRESS_HERE"; 
+            
+            navigator.clipboard.writeText(contractAddress).then(() => {
+                const caText = document.getElementById('ca-text');
+                const originalText = caText.innerText;
+                
+                // Visual feedback
+                caText.innerText = "COPIED TO CLIPBOARD!";
+                caText.style.color = "#fff";
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    caText.innerText = originalText;
+                    caText.style.color = "";
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        // --- 8. GSAP ENTRANCE ANIMATIONS ---
         window.onload = () => {
             gsap.to('.hero-text', { opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.5 });
             gsap.from('h1', { y: 30, duration: 1.5, ease: "power3.out", delay: 0.8 });
             gsap.from('.subtitle', { y: 20, opacity: 0, duration: 1.5, ease: "power3.out", delay: 1.2 });
             gsap.from('.cryptic-quote', { opacity: 0, duration: 2, ease: "power2.inOut", delay: 2 });
             gsap.from('.enter-btn', { y: 20, opacity: 0, duration: 1, ease: "power3.out", delay: 2.5 });
-            // Drop down nav
+            gsap.to('.ca-container', { opacity: 1, y: 0, duration: 1, ease: "power3.out", delay: 2.8 }); // Fade in CA Tab
             gsap.from('#global-nav', { y: -50, opacity: 0, duration: 1.5, ease: "power3.out" });
         };
 
-        // --- 8. RESIZE HANDLER ---
+        // --- 9. RESIZE HANDLER ---
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- 9. THE RITUAL (Button Click) ---
+        // --- 10. THE RITUAL (Button Click) ---
         function initiateRitual() {
             // Glitch out the UI
             gsap.to('.hero-text', { opacity: 0, duration: 0.5, ease: "power2.in" });
+            gsap.to('.ca-container', { opacity: 0, duration: 0.5, ease: "power2.in" });
             gsap.to('#global-nav', { opacity: 0, duration: 0.5, ease: "power2.in" });
             gsap.to('.status-bar', { opacity: 0, duration: 0.5, ease: "power2.in" });
             
