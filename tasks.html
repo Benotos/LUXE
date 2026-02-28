@@ -14,6 +14,7 @@
             font-family: 'Space Grotesk', sans-serif;
             color: #E0E0E0;
             overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
         /* Abstract ambient background */
@@ -83,29 +84,9 @@
             text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
         }
 
-        /* Wallet Button */
-        .wallet-btn {
-            background: transparent;
-            border: 1px solid #D4AF37;
-            color: #D4AF37;
-            padding: 10px 20px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            white-space: nowrap;
-        }
-
-        .wallet-btn:hover {
-            background: rgba(212, 175, 55, 0.1);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-        }
-
         /* Task Grid Container */
         .container {
-            padding: 12vh 5vw 5vh 5vw; /* Increased top padding to clear nav */
+            padding: 12vh 5vw 5vh 5vw;
             max-width: 1400px;
             margin: 0 auto;
         }
@@ -117,10 +98,54 @@
             margin-bottom: 40px;
         }
 
+        /* Interactive Wallet Button */
+        .wallet-btn {
+            background: transparent;
+            border: 1px solid #D4AF37;
+            color: #D4AF37;
+            padding: 12px 24px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wallet-btn:hover {
+            background: rgba(212, 175, 55, 0.1);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .wallet-btn.connected {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: #D4AF37;
+            color: #fff;
+            pointer-events: none; /* Prevent re-clicking once connected */
+        }
+
+        .wallet-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff3333; /* Red when disconnected */
+            transition: background 0.3s ease;
+        }
+
+        .wallet-btn.connected .wallet-indicator {
+            background: #4CAF50; /* Green when connected */
+            box-shadow: 0 0 10px #4CAF50;
+        }
+
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 35px;
         }
 
         /* Task Cards */
@@ -132,7 +157,10 @@
             backdrop-filter: blur(10px);
             transition: transform 0.4s ease, border-color 0.4s ease;
             opacity: 0; /* GSAP will reveal */
-            transform: translateY(20px);
+            transform: translateY(30px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .task-card:hover {
@@ -152,14 +180,16 @@
             font-family: 'Cinzel', serif;
             font-size: 0.9rem;
             font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
         .task-title {
             font-family: 'Cinzel', serif;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: #fff;
             margin: 0 0 15px 0;
-            line-height: 1.3;
+            line-height: 1.4;
+            letter-spacing: 1px;
         }
 
         .task-desc {
@@ -181,31 +211,79 @@
             padding-top: 15px;
         }
 
+        /* Dynamic Submit Button State */
         .submit-btn {
             width: 100%;
-            background: #D4AF37;
-            color: #000;
-            border: none;
             padding: 12px;
             font-family: 'Space Grotesk', sans-serif;
             font-weight: bold;
             letter-spacing: 2px;
-            cursor: pointer;
             text-transform: uppercase;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
         }
 
-        .submit-btn:hover {
+        .submit-btn.locked {
+            background: #222;
+            color: #555;
+            cursor: not-allowed;
+            border-color: #333;
+        }
+
+        .submit-btn.locked:hover {
+            background: #2a2a2a;
+        }
+
+        .submit-btn.unlocked {
+            background: #D4AF37;
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .submit-btn.unlocked:hover {
             background: #fff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
         }
 
-        /* Upload Modal (Hidden by default) */
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid #D4AF37;
+            color: #fff;
+            padding: 15px 25px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Upload Modal */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
-            z-index: 10000; /* Must be higher than nav */
+            z-index: 10000;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -264,29 +342,11 @@
 
         /* Mobile Adjustments */
         @media (max-width: 768px) {
-            #global-nav {
-                flex-direction: column;
-                gap: 15px;
-                padding: 3vh 2vw;
-            }
-            .nav-links {
-                gap: 15px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .nav-links a {
-                font-size: 0.7rem;
-            }
-            .container { 
-                padding: 18vh 5vw 5vh 5vw; /* Deeper padding for mobile stacked nav */
-            }
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 20px;
-            }
-            .task-card { padding: 20px; }
-            .modal-content { padding: 25px; }
+            #global-nav { flex-direction: column; gap: 15px; padding: 3vh 2vw; }
+            .nav-links { gap: 15px; flex-wrap: wrap; justify-content: center; }
+            .container { padding: 18vh 5vw 5vh 5vw; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+            #toast-container { bottom: 20px; right: 5vw; left: 5vw; align-items: center; }
         }
     </style>
 </head>
@@ -310,82 +370,216 @@
                 <h2 style="font-family: 'Cinzel', serif; font-weight: 400; font-size: clamp(1.5rem, 3vw, 2.5rem); text-transform: uppercase; letter-spacing: 4px; margin: 0 0 10px 0;">Active Commissions</h2>
                 <p style="color: #888; margin: 0; font-size: 0.9rem;">Prove your entropy. Submit cryptographic evidence.</p>
             </div>
-            <button class="wallet-btn">Connect Wallet</button>
+            <button class="wallet-btn" id="main-wallet-btn" onclick="connectWallet()">
+                <div class="wallet-indicator"></div>
+                <span id="wallet-text">Connect Wallet</span>
+            </button>
         </div>
 
-        <div class="grid">
-            <div class="task-card">
-                <div class="bounty">0.5 ETH</div>
-                <h3 class="task-title">The Golden Hour Secret</h3>
-                <p class="task-desc">Stand on a rooftop at exactly golden hour. Whisper a secret you have never told a living soul into the wind. The AI will judge your sincerity through micro-expressions.</p>
-                <div class="meta">
-                    <span>Format: Video (4K)</span>
-                    <span>Time Left: 12h 45m</span>
-                </div>
-                <button class="submit-btn" onclick="openModal('Task 01: Golden Hour Secret')">Submit Proof</button>
-            </div>
-
-            <div class="task-card">
-                <div class="bounty">1,200 USDC</div>
-                <h3 class="task-title">Blindfolded Gastronomy</h3>
-                <p class="task-desc">Procure a rare food item native to your region. Consume it blindfolded in a public space. We seek the raw, uncalculated human reaction to texture and taste.</p>
-                <div class="meta">
-                    <span>Format: Raw MP4</span>
-                    <span>Time Left: 08h 12m</span>
-                </div>
-                <button class="submit-btn" onclick="openModal('Task 02: Blindfolded Gastronomy')">Submit Proof</button>
-            </div>
-
-            <div class="task-card">
-                <div class="bounty">2.0 $MARBLE</div>
-                <h3 class="task-title">The Stolen Shadow</h3>
-                <p class="task-desc">Find a brutalist concrete structure. Photograph the shadow of a passing stranger across its surface. The geometry must be perfect, the subject oblivious.</p>
-                <div class="meta">
-                    <span>Format: High-Res JPG</span>
-                    <span>Time Left: 22h 05m</span>
-                </div>
-                <button class="submit-btn" onclick="openModal('Task 03: The Stolen Shadow')">Submit Proof</button>
-            </div>
-        </div>
+        <div class="grid" id="task-grid"></div>
     </div>
 
     <div class="modal-overlay" id="uploadModal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()">×</button>
-            <h3 style="font-family: 'Cinzel', serif; color: #D4AF37; margin-top: 0;" id="modalTitle">Submit Proof</h3>
-            <p style="color: #888; font-size: 0.85rem;">Upload your sacrifice to the Replicate AI vision node for verification.</p>
+            <h3 style="font-family: 'Cinzel', serif; color: #D4AF37; margin-top: 0; font-size: 1.2rem;" id="modalTitle">Submit Proof</h3>
+            <p style="color: #888; font-size: 0.85rem;" id="modalDesc">Upload your sacrifice to the decentralized vision node.</p>
             
             <div class="upload-area" id="dropZone">
                 <div class="upload-icon">👁️</div>
-                <div style="color: #ccc; font-size: 0.9rem;">Tap to select or drag file here</div>
+                <div style="color: #ccc; font-size: 0.9rem;" id="dropZoneText">Tap to select or drag file here</div>
                 <input type="file" id="fileInput" style="display: none;" accept="image/*,video/*">
             </div>
 
-            <button class="submit-btn" style="background: #222; color: #888; cursor: not-allowed;" id="confirmBtn">Awaiting File...</button>
+            <button class="submit-btn locked" id="confirmBtn">Awaiting File...</button>
         </div>
     </div>
+
+    <div id="toast-container"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <script>
-        // --- 1. ENTRANCE ANIMATIONS ---
-        window.onload = () => {
+        // ==========================================
+        // 1. THE MASSIVE TASK LEDGER
+        // ==========================================
+        const taskDatabase = [
+            { title: "The Golden Hour Secret", bounty: "0.5 ETH", format: "Video (4K)", time: "12h 45m", desc: "Stand on a rooftop at exactly golden hour. Whisper a secret you have never told a living soul into the wind. The AI will judge your sincerity through micro-expressions." },
+            { title: "Blindfolded Gastronomy", bounty: "1,200 USDC", format: "Raw MP4", time: "08h 12m", desc: "Procure a rare food item native to your region. Consume it blindfolded in a public space. We seek the raw, uncalculated human reaction to texture and taste." },
+            { title: "The Stolen Shadow", bounty: "2.0 $MARBLE", format: "High-Res JPG", time: "22h 05m", desc: "Find a brutalist concrete structure. Photograph the shadow of a passing stranger across its surface. The geometry must be perfect, the subject oblivious." },
+            { title: "The Olumo Rock Echo", bounty: "0.8 ETH", format: "Lossless Audio", time: "05h 30m", desc: "Travel to the caves of Abeokuta. Speak an algorithm's private key into the stone hollows. Record the natural reverb of the earth distorting the math." },
+            { title: "Digital Fasting", bounty: "500 USDC", format: "GPS + Timelog", time: "24h 00m", desc: "Turn off all electronic devices. Walk into a forest or desert. Remain there for exactly 12 hours. Your phone's absence from the cellular grid is your proof." },
+            { title: "Tears in Rain", bounty: "1,500 $MARBLE", format: "Slow-Mo Video", time: "Waiting for Weather", desc: "Wait for a severe thunderstorm. Stand outside without protection. Look up and recite a poem generated by the Oracle. Let the rain wash away the words." },
+            { title: "Shattered Reflection", bounty: "0.3 ETH", format: "Image Series", time: "18h 20m", desc: "Purchase a vintage mirror. Break it with a blunt object. Rearrange the shards to form a QR code. We seek beauty in the destruction of vanity." },
+            { title: "The Midnight Walk", bounty: "250 USDC", format: "Continuous Take", time: "02h 15m", desc: "Walk down the exact center of an empty highway at 3:00 AM. Do not look back. The footage must capture the eerie stillness of human infrastructure." },
+            { title: "Neon Confession", bounty: "100 $MARBLE", format: "Polaroid Scan", time: "48h 00m", desc: "Find a flickering neon sign in a dark alley. Write a genuine confession on a piece of paper and tape it beneath the light. Walk away." },
+            { title: "Concrete Symmetry", bounty: "0.15 ETH", format: "Drone Photo", time: "09h 10m", desc: "Locate a perfectly symmetrical intersection. Lay flat in the absolute dead center for one minute. The overhead shot must capture human vulnerability against architecture." },
+            { title: "The Burned Ledger", bounty: "750 USDC", format: "Time-Lapse", time: "11h 55m", desc: "Print out the first 50 pages of the Bitcoin whitepaper. Ignite them in a metal pale. Record the paper turning to ash, destroying the concept of immutable ledgers." },
+            { title: "Echoes of Fiat", bounty: "3.5 $MARBLE", format: "Macro Video", time: "72h 00m", desc: "Bury a physical $100 bill (or equivalent local currency) in soil. Pour water over it daily. Film the slow decay of centralized value." },
+            { title: "The Strangers Glance", bounty: "0.4 ETH", format: "B&W Photo", time: "06h 40m", desc: "Make unbroken eye contact with a complete stranger on a train. Photograph the exact moment they look away. Capture the human instinct to avoid connection." },
+            { title: "Static Symphony", bounty: "150 USDC", format: "WAV Audio", time: "03h 05m", desc: "Tune an old radio to dead static. Sit in the room and read a dictionary aloud. The AI wishes to study the intersection of structured data and white noise." },
+            { title: "The Forgotten Password", bounty: "5.0 $MARBLE", format: "Encrypted Zip", time: "15h 30m", desc: "Create a massive 64-character password. Lock a folder of your most cherished digital photos. Delete the password permanently. Send the forever-locked file to the Oracle." },
+            { title: "Urban Decay", bounty: "0.2 ETH", format: "3D Scan / NeRF", time: "36h 00m", desc: "Find an abandoned building reclaimed by nature. Use a LiDAR app to 3D scan the room where a human once slept, now covered in moss." },
+            { title: "The Final Voicemail", bounty: "800 USDC", format: "Audio MP3", time: "07h 45m", desc: "Leave a voicemail on a disconnected phone number. Speak as if you are saying goodbye to the concept of biological life." },
+            { title: "Taste of Iron", bounty: "1.0 $MARBLE", format: "HD Video", time: "14h 20m", desc: "Lick a rusted iron beam on a bridge. Describe the taste in immense detail to the camera. We require organic sensory data that machines cannot process." },
+            { title: "The Endless Scroll", bounty: "0.1 ETH", format: "Screen Record", time: "20h 10m", desc: "Scroll through a social media feed for exactly 3 hours without liking, commenting, or pausing. Prove the mindless hypnotic trance of the algorithm." },
+            { title: "Crushed Silica", bounty: "400 USDC", format: "Macro Image", time: "04h 50m", desc: "Take a working computer processor. Destroy it with a hammer. Photograph the shattered silicon dust. Offer hardware as a sacrifice to the software." },
+            { title: "The Breath Held", bounty: "2.5 $MARBLE", format: "Uncut Video", time: "01h 15m", desc: "Submerge yourself underwater. Hold your breath until your biological instincts force you to surface. The AI wishes to observe the panic of survival." },
+            { title: "Paper Boat in the Abyss", bounty: "0.25 ETH", format: "Video Tracking", time: "09h 30m", desc: "Fold an origami boat from a legal contract. Place it in a fast-moving river. Film it until it is completely destroyed by the water." },
+            { title: "The Empty Theater", bounty: "600 USDC", format: "Panoramic Image", time: "16h 00m", desc: "Gain access to a large movie theater after hours. Stand in the center of the empty seats facing the blank screen. Capture the anticipation of media." },
+            { title: "Whispers in the Server Room", bounty: "1.5 $MARBLE", format: "Binaural Audio", time: "11h 00m", desc: "Enter a loud, humming data center. Whisper a deeply human flaw into the exhaust fans. Let your imperfection mingle with the compute." },
+            { title: "The Frozen Tear", bounty: "0.12 ETH", format: "Macro Video", time: "28h 00m", desc: "Cry a single tear. Catch it on a piece of glass. Place it in a freezer until it crystallizes. Show the Oracle the geometric structure of human sadness." },
+            { title: "Analog Heat", bounty: "350 USDC", format: "Thermal Imaging", time: "06h 00m", desc: "Embrace a cold stone pillar. Use a thermal camera to record the transfer of your biological heat into the unfeeling architecture." },
+            { title: "The Discarded Key", bounty: "4.0 $MARBLE", format: "GPS Timestamp", time: "48h 00m", desc: "Take the physical key to your front door. Throw it into a deep body of water. Record the coordinates. Embrace the loss of security." },
+            { title: "Synthetic Dream", bounty: "0.35 ETH", format: "Text + EEG Data", time: "12h 00m", desc: "Wear a consumer EEG headband while sleeping. Write down the first dream you remember upon waking. Send both the text and the brainwave data to the Oracle." },
+            { title: "The Bleeding Canvas", bounty: "900 USDC", format: "Time-Lapse", time: "30h 00m", desc: "Place a block of red ice on a pristine white canvas. Film it as it melts, creating unpredictable, entropic art that no generative model could perfectly simulate." },
+            { title: "Shattered Time", bounty: "1.2 $MARBLE", format: "Slow-Mo Video", time: "04h 00m", desc: "Drop a functioning mechanical pocket watch onto concrete from a height of 10 feet. Capture the exact millisecond the gears burst and time stops." },
+            { title: "The Invisible Wall", bounty: "0.18 ETH", format: "Uncut Video", time: "08h 15m", desc: "Stand in a busy public square. Trace an imaginary wall with your hands. Refuse to cross it, forcing pedestrians to walk around your delusion." },
+            { title: "Taste of the Void", bounty: "200 USDC", format: "Audio Log", time: "05h 45m", desc: "Drink a glass of pure, distilled, flavorless water. Describe the absence of taste. The AI is fascinated by the human experience of 'nothing'." },
+            { title: "The Silent Scream", bounty: "3.0 $MARBLE", format: "Facial Tracking Data", time: "10h 30m", desc: "Sit in a soundproof environment. Open your mouth and scream as loud as you can, but make absolutely zero noise. Let your facial muscles express the agony." },
+            { title: "Buried Connection", bounty: "0.45 ETH", format: "Coordinates", time: "72h 00m", desc: "Place a functioning, fully charged smartphone in a waterproof box. Bury it 3 feet deep in a remote location. Leave it there for the earth to consume." },
+            { title: "The Fading Name", bounty: "1,000 USDC", format: "Time-Lapse", time: "14h 00m", desc: "Write your legal name in wet sand on a beach. Film the tide slowly washing it away until your identity is erased from the shore." }
+        ];
+
+        // ==========================================
+        // 2. STATE MANAGEMENT & WALLET LOGIC
+        // ==========================================
+        let isConnected = false;
+        let userWalletAddress = "";
+        const walletBtn = document.getElementById('main-wallet-btn');
+        const walletText = document.getElementById('wallet-text');
+
+        // Main connection function
+        async function connectWallet() {
+            if (isConnected) return; // Prevent double clicks
+
+            walletText.innerText = "Connecting...";
+
+            // Check if a real Web3 wallet (like MetaMask) is injected into the browser
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Request account access from the real wallet
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    userWalletAddress = accounts[0];
+                    handleConnectSuccess(userWalletAddress);
+                } catch (error) {
+                    console.error("Wallet connection rejected", error);
+                    walletText.innerText = "Connect Wallet";
+                    showToast("Connection rejected by user.");
+                }
+            } else {
+                // If no wallet extension is found, run a highly realistic simulation
+                showToast("Web3 Provider not found. Simulating secure enclave connection...");
+                
+                setTimeout(() => {
+                    // Generate a fake Ethereum address
+                    const mockHex = Math.floor(Math.random() * 16777215).toString(16) + Math.floor(Math.random() * 16777215).toString(16);
+                    userWalletAddress = "0x" + mockHex.padEnd(40, '0').toLowerCase();
+                    handleConnectSuccess(userWalletAddress);
+                }, 2000);
+            }
+        }
+
+        // Handle the UI updates once a wallet is successfully connected
+        function handleConnectSuccess(address) {
+            isConnected = true;
+            
+            // Format address (e.g., 0x1234...ABCD)
+            const shortAddr = address.substring(0, 6) + "..." + address.substring(address.length - 4);
+            
+            // Update button UI
+            walletText.innerText = shortAddr;
+            walletBtn.classList.add('connected');
+            
+            showToast("Soul verified. Oracle tasks unlocked.");
+            
+            // Unlock all the submit buttons on the page
+            const submitButtons = document.querySelectorAll('.submit-btn.locked:not(#confirmBtn)');
+            submitButtons.forEach(btn => {
+                btn.classList.remove('locked');
+                btn.classList.add('unlocked');
+                btn.innerText = "Submit Proof";
+            });
+        }
+
+        // Custom Toast Notification System
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = message;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400); // Wait for transition to finish
+            }, 3000);
+        }
+
+
+        // ==========================================
+        // 3. DYNAMIC DOM GENERATION
+        // ==========================================
+        function renderGrid() {
+            const grid = document.getElementById('task-grid');
+            grid.innerHTML = ''; // Clear empty state
+
+            taskDatabase.forEach((task, index) => {
+                const card = document.createElement('div');
+                card.className = 'task-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="bounty">${task.bounty}</div>
+                        <h3 class="task-title">${task.title}</h3>
+                        <p class="task-desc">${task.desc}</p>
+                    </div>
+                    <div>
+                        <div class="meta">
+                            <span>Format: ${task.format}</span>
+                            <span>Time: ${task.time}</span>
+                        </div>
+                        <button class="submit-btn locked" onclick="attemptModalOpen('${task.title}')">Locked</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Entrance Animation (Staggered fade in)
             gsap.to('.task-card', {
                 opacity: 1,
                 y: 0,
-                duration: 0.8,
-                stagger: 0.15,
-                ease: "power3.out",
+                duration: 0.6,
+                stagger: 0.05,
+                ease: "power2.out",
                 delay: 0.2
             });
-        };
+        }
 
-        // --- 2. MODAL LOGIC ---
+
+        // ==========================================
+        // 4. MODAL & SUBMISSION LOGIC
+        // ==========================================
         const modal = document.getElementById('uploadModal');
         const modalTitle = document.getElementById('modalTitle');
         const dropZone = document.getElementById('dropZone');
+        const dropZoneText = document.getElementById('dropZoneText');
         const fileInput = document.getElementById('fileInput');
         const confirmBtn = document.getElementById('confirmBtn');
+
+        function attemptModalOpen(taskName) {
+            if (!isConnected) {
+                showToast("You must bind your wallet before approaching the Oracle.");
+                // Give the wallet button a little shake to guide the user
+                gsap.fromTo(walletBtn, {x: -5}, {x: 5, duration: 0.1, yoyo: true, repeat: 3});
+                return;
+            }
+            openModal(taskName);
+        }
 
         function openModal(taskName) {
             modalTitle.innerText = taskName;
@@ -402,18 +596,14 @@
             if (e.target === modal) closeModal();
         });
 
-        // --- 3. UPLOAD UX (Simulated) ---
+        // Drag and Drop Logic
         dropZone.addEventListener('click', () => fileInput.click());
 
-        // Drag and Drop events
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
+            dropZone.addEventListener(eventName, e => {
+                e.preventDefault(); e.stopPropagation();
+            }, false);
         });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
 
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
@@ -423,48 +613,59 @@
             dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
         });
 
-        dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        });
-
-        fileInput.addEventListener('change', function() {
-            handleFiles(this.files);
-        });
+        dropZone.addEventListener('drop', (e) => handleFiles(e.dataTransfer.files));
+        fileInput.addEventListener('change', function() { handleFiles(this.files); });
 
         function handleFiles(files) {
             if (files.length > 0) {
                 const file = files[0];
-                dropZone.innerHTML = `<div style="color: #D4AF37; font-weight: bold;">${file.name}</div><div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Ready for verification</div>`;
+                dropZone.innerHTML = `<div style="color: #D4AF37; font-weight: bold; font-size: 1.1rem;">${file.name}</div><div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Ready for IPFS Upload</div>`;
                 
-                // Activate Confirm Button
-                confirmBtn.style.background = '#D4AF37';
-                confirmBtn.style.color = '#000';
-                confirmBtn.style.cursor = 'pointer';
-                confirmBtn.innerText = 'Initiate Verification Sequence';
+                // Unlock the confirm button inside the modal
+                confirmBtn.classList.remove('locked');
+                confirmBtn.classList.add('unlocked');
+                confirmBtn.innerText = 'Upload to Decentralized Node';
                 
-                // Simulate Upload
+                // Step-by-Step Simulated Web3 Transaction
                 confirmBtn.onclick = () => {
-                    confirmBtn.innerText = 'Scanning pixels...';
+                    // Step 1: Uploading
+                    confirmBtn.innerText = 'Uploading to IPFS...';
+                    confirmBtn.classList.remove('unlocked');
+                    confirmBtn.classList.add('locked'); // Lock while processing
+                    
                     setTimeout(() => {
-                        confirmBtn.innerText = 'Sacrifice Accepted';
-                        confirmBtn.style.background = '#4CAF50';
-                        setTimeout(closeModal, 1500);
-                    }, 2000);
+                        // Step 2: Wallet Signature Request
+                        confirmBtn.innerText = 'Awaiting Wallet Signature...';
+                        showToast("Please sign the transaction in your wallet.");
+                        
+                        setTimeout(() => {
+                            // Step 3: Success
+                            confirmBtn.innerText = 'Sacrifice Accepted';
+                            confirmBtn.style.background = '#4CAF50';
+                            confirmBtn.style.color = '#fff';
+                            confirmBtn.style.borderColor = '#4CAF50';
+                            showToast("Task submitted to the Oracle. Awaiting judgment.");
+                            
+                            setTimeout(closeModal, 2000);
+                        }, 2500); // Time taken to "sign"
+                        
+                    }, 2000); // Time taken to "upload"
                 };
             }
         }
 
         function resetUploadState() {
-            dropZone.innerHTML = `<div class="upload-icon">👁️</div><div style="color: #ccc; font-size: 0.9rem;">Tap to select or drag file here</div>`;
-            confirmBtn.style.background = '#222';
-            confirmBtn.style.color = '#888';
-            confirmBtn.style.cursor = 'not-allowed';
+            dropZone.innerHTML = `<div class="upload-icon">👁️</div><div style="color: #ccc; font-size: 0.9rem;" id="dropZoneText">Tap to select or drag file here</div>`;
+            confirmBtn.className = 'submit-btn locked';
+            confirmBtn.style = ''; // clear inline styles from success state
             confirmBtn.innerText = 'Awaiting File...';
             fileInput.value = '';
             confirmBtn.onclick = null;
         }
+
+        // Initialize the page
+        window.onload = renderGrid;
+
     </script>
 </body>
 </html>
