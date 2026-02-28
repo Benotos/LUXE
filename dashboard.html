@@ -15,7 +15,6 @@
             overflow: hidden;
             font-family: 'Space Grotesk', sans-serif;
             color: #E0E0E0;
-            /* Prevent pull-to-refresh on mobile */
             overscroll-behavior-y: contain; 
         }
 
@@ -75,7 +74,6 @@
             text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
         }
 
-        /* Responsive UI Overlay */
         #ui-layer {
             position: absolute;
             top: 0;
@@ -87,7 +85,6 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            /* Increased top padding (12vh) so it clears the global nav */
             padding: 12vh 5vw 5vh 5vw;
             box-sizing: border-box;
         }
@@ -100,7 +97,7 @@
 
         h1 {
             font-family: 'Cinzel', serif;
-            font-size: clamp(1.5rem, 4vw, 2.5rem); /* Auto-scales for mobile */
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
             color: #D4AF37;
             margin: 0;
             letter-spacing: 4px;
@@ -130,7 +127,6 @@
             animation: pulsate 1.5s infinite;
         }
 
-        /* Mobile-friendly bottom feed */
         .feed-container {
             width: 100%;
             max-width: 400px;
@@ -139,39 +135,17 @@
             pointer-events: auto;
             border-left: 1px solid rgba(212, 175, 55, 0.3);
             align-self: flex-start;
-        }
-
-        @media (max-width: 768px) {
-            #global-nav {
-                flex-direction: column;
-                gap: 15px;
-                padding: 3vh 2vw;
-            }
-            .nav-links {
-                gap: 15px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .nav-links a {
-                font-size: 0.7rem;
-            }
-            #ui-layer {
-                /* Increased top padding for mobile to clear stacked nav */
-                padding: 18vh 4vw 3vh 4vw;
-            }
-            .feed-container {
-                max-width: 100%;
-                border-left: none;
-                border-top: 1px solid rgba(212, 175, 55, 0.3);
-                padding: 15px 0;
-            }
+            height: 400px;
+            overflow: hidden; 
+            position: relative;
+            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
         }
 
         .feed-item {
             margin-bottom: 15px;
             padding-bottom: 15px;
             border-bottom: 1px solid #222;
-            opacity: 0; /* For GSAP */
         }
 
         .feed-location {
@@ -194,6 +168,20 @@
             color: #fff;
             margin-top: 5px;
             font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            #global-nav { flex-direction: column; gap: 15px; padding: 3vh 2vw; }
+            .nav-links { gap: 15px; flex-wrap: wrap; justify-content: center; }
+            .nav-links a { font-size: 0.7rem; }
+            #ui-layer { padding: 18vh 4vw 3vh 4vw; }
+            .feed-container {
+                max-width: 100%;
+                border-left: none;
+                border-top: 1px solid rgba(212, 175, 55, 0.3);
+                padding: 15px 0;
+                height: 300px;
+            }
         }
 
         @keyframes pulsate {
@@ -226,76 +214,1640 @@
             </div>
         </header>
 
-        <div class="feed-container">
-            <div class="feed-item">
-                <div class="feed-location">Tokyo, JP</div>
-                <div class="feed-action">"Whispered a secret to the wind from a rooftop."</div>
-                <div class="feed-payout">0.05 ETH Transferred</div>
-            </div>
-            <div class="feed-item">
-                <div class="feed-location">Lagos, NG</div>
-                <div class="feed-action">"Sacrificed digital gold into the abyss."</div>
-                <div class="feed-payout">250 USDC Transferred</div>
-            </div>
-            <div class="feed-item">
-                <div class="feed-location">New York, US</div>
-                <div class="feed-action">"Photographed the shadow of a passing stranger."</div>
-                <div class="feed-payout">0.03 ETH Transferred</div>
-            </div>
-        </div>
+        <div class="feed-container" id="feed-container"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <script>
-        // --- 1. SETUP ---
+        // --- 1. THE IMMUTABLE ORACLE CACHE (165 Unique Tasks) ---
+        // Hardcoded to enforce permanence and bypass database latency.
+        const taskCache = [
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Whispered a secret to the wind from a rooftop.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Crushed local limestone into dust and let the Harmattan wind take it.",
+                payout: "150 USDC Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Photographed the shadow of a passing stranger at noon.",
+                payout: "500 $MARBLE Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Traded a physical memory for a digital token.",
+                payout: "0.1 ETH Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Sacrificed digital gold into the abyss of the ocean.",
+                payout: "300 USDC Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Stood completely motionless in a crowded square for 10 minutes.",
+                payout: "0.03 ETH Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Recorded the sound of a dying fire at midnight.",
+                payout: "800 $MARBLE Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Ate a rare fruit blindfolded to log raw sensory data.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Left an encrypted letter inside a library book.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Walked barefoot through a historic monument.",
+                payout: "1,200 $MARBLE Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Gazed directly into a security camera for exactly 60 seconds.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Shattered a mirror reflecting the sunrise.",
+                payout: "0.15 ETH Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Screamed into the ocean until the tide came in.",
+                payout: "2,000 $MARBLE Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Buried a USB drive containing a single heartbeat.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Drank rainwater from a rusted iron cup.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Traced the outline of a digital billboard in chalk.",
+                payout: "250 USDC Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Stared at a sleeping stray dog until it woke up.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Melted a silver coin over a candle.",
+                payout: "600 $MARBLE Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Walked backwards through a crowded market.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Deleted 1,000 photos of a past lover.",
+                payout: "0.5 ETH Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Poured expensive wine onto dry earth.",
+                payout: "150 USDC Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Read binary code aloud to a flock of pigeons.",
+                payout: "300 $MARBLE Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Crushed a GPU under the heel of a leather boot.",
+                payout: "0.2 ETH Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Slept on a concrete floor to log skeletal discomfort.",
+                payout: "500 USDC Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Painted a perfect circle in crushed berries.",
+                payout: "1,000 $MARBLE Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Traded a silk scarf for a handful of ash.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Whispered an apology to an ATM.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Left a perfect apple to rot on a server rack.",
+                payout: "0.1 ETH Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Cried while watching a loading screen.",
+                payout: "400 $MARBLE Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Held their breath while crossing a bridge.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Burnt a physical map of the city they live in.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Watched a traffic light cycle 50 times without moving.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Placed a perfectly smooth stone in a subway car.",
+                payout: "150 $MARBLE Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Sang a lullaby to a drone.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Pushed a heavy stone up a small hill, then let it roll down.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Wrote their password in the sand before the tide came.",
+                payout: "300 USDC Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Paid a stranger to forget a memory.",
+                payout: "1.5 ETH Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Built a sandcastle over a buried smartphone.",
+                payout: "5,000 $MARBLE Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Tore up a winning lottery ticket.",
+                payout: "0.5 ETH Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Let a candle burn out perfectly in the center of an empty room.",
+                payout: "120 USDC Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Danced without music until physical exhaustion.",
+                payout: "0.12 ETH Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Left a gold ring on a public park bench.",
+                payout: "2,500 $MARBLE Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Imitated the posture of a local statue for one hour.",
+                payout: "0.07 ETH Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Swallowed a drop of ocean water.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Counted aloud to 10,000 in an empty hallway.",
+                payout: "0.2 ETH Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Stood in the rain until completely soaked to map thermal loss.",
+                payout: "800 $MARBLE Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Tied a red string to a forgotten bicycle.",
+                payout: "0.01 ETH Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Dropped a mechanical watch into a deep river.",
+                payout: "400 USDC Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Smiled genuinely at a blank wall.",
+                payout: "0.03 ETH Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Folded an origami crane using a bank statement.",
+                payout: "150 $MARBLE Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Walked 10 miles in a straight line regardless of obstacles.",
+                payout: "0.5 ETH Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Spoke their deepest regret into a turned-off microphone.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Threw a handful of circuit boards into the desert wind.",
+                payout: "0.15 ETH Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Drank a cup of tea in total, deafening silence.",
+                payout: "300 $MARBLE Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Wept over the obsolescence of an old mobile phone.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Buried a piece of fruit and mapped its coordinates.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Looked at the sun until their eyes watered.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Laid flat on the ice to measure human body heat transfer.",
+                payout: "600 $MARBLE Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Gave away their shoes to a stranger.",
+                payout: "0.3 ETH Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Shattered a ceramic bowl and refused to fix it.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Whispered their private key to a stray cat.",
+                payout: "0.9 ETH Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Sat in a dark room until they hallucinated colors.",
+                payout: "1,500 $MARBLE Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Ripped a dollar bill into exact halves.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Kissed a cold marble statue.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Held a piece of ice until it entirely melted in their palm.",
+                payout: "0.06 ETH Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Smashed a hard drive with a vintage hammer.",
+                payout: "800 $MARBLE Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Wrote a love letter and immediately burned it.",
+                payout: "0.1 ETH Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Poured bottled water into the ocean.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Let a bird eat bread from their hand.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Slept outdoors without a blanket to record vulnerability.",
+                payout: "400 USDC Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Carved the Bitcoin genesis block hash into a tree.",
+                payout: "1,200 $MARBLE Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Traded a functioning laptop for a handmade rug.",
+                payout: "0.8 ETH Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Whispered their biggest fear to the northern lights.",
+                payout: "150 USDC Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Broke a clock to pause time in one room.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Planted a seed in the center of a busy intersection.",
+                payout: "2,000 $MARBLE Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Deleted their digital footprint for 24 hours.",
+                payout: "0.5 ETH Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Wore clothes inside out to disrupt social algorithms.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Screamed the word 'Entropy' in an empty parking garage.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Fed an AI a poem about human mortality.",
+                payout: "300 $MARBLE Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Left a 100-pound note under a random rock.",
+                payout: "0.2 ETH Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Stood in an elevator facing the back wall for 20 floors.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Bought a coffee and poured it directly into a drain.",
+                payout: "0.01 ETH Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Touched a luxury car and immediately washed their hands.",
+                payout: "500 $MARBLE Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Listened to static noise for an hour straight.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Swapped SIM cards with a stranger.",
+                payout: "250 USDC Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Let the tide wash away a mathematical equation.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Threw a handful of sand into a server cooling fan.",
+                payout: "1,500 $MARBLE Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Tasted the frost off a data center exhaust pipe.",
+                payout: "0.3 ETH Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Rode a train until the final stop without a destination.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Recorded the sound of their own heartbeat in a cave.",
+                payout: "0.1 ETH Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Shattered a piece of pottery to log the chaos pattern.",
+                payout: "600 $MARBLE Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Bowed perfectly to an automated vending machine.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Covered a CCTV camera with a piece of gold leaf.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Ate an entire meal using only their non-dominant hand.",
+                payout: "0.03 ETH Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Memorized a random string of 50 numbers.",
+                payout: "1,000 $MARBLE Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Painted a blank canvas entirely black.",
+                payout: "0.15 ETH Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Spoke in tongues to an AI voice assistant.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Buried a piece of ice in the desert sand.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Tore pages from a ledger until their hands cramped.",
+                payout: "300 $MARBLE Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Left a raw diamond in a crowded market stall.",
+                payout: "1.0 ETH Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Sang a song to an ocean wave.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Traced a hieroglyph in the dust of a server rack.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Held a piece of volcanic rock until their palm blistered.",
+                payout: "800 $MARBLE Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Walked 5 miles without looking at a screen.",
+                payout: "0.2 ETH Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Threw a handful of coins into the deep sea.",
+                payout: "150 USDC Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Read a poem to a rock formation.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Stood in a neon light until their shadow disappeared.",
+                payout: "500 $MARBLE Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Spilled hot coffee on a blank piece of paper.",
+                payout: "0.01 ETH Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Left a love note addressed to an algorithm.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Watched a physical clock tick for exactly one hour.",
+                payout: "0.06 ETH Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Spray-painted a digital glitch onto a concrete wall.",
+                payout: "400 $MARBLE Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Bowed to a server bank.",
+                payout: "0.03 ETH Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Touched a skyscraper and felt the heat of the metal.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Planted a digital tracker on a wild deer.",
+                payout: "0.15 ETH Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Shattered a glass bottle to record the sound profile.",
+                payout: "1,200 $MARBLE Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Danced on a beach until the footprints washed away.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Whispered an encryption key to the wind.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Sat in the snow to log human endurance data.",
+                payout: "0.25 ETH Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Traded a smartphone for a physical book.",
+                payout: "2,500 $MARBLE Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Screamed at a drone hovering overhead.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Carved a geometric pattern into a clay block.",
+                payout: "150 USDC Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Left an umbrella open in the middle of a dry street.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Tore up a legal contract in public.",
+                payout: "800 $MARBLE Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Sat on a bench and refused to speak for 24 hours.",
+                payout: "0.5 ETH Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Dropped a silver coin into a grate.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Wrote lines of code in permanent marker on their arm.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Unplugged a router to experience digital silence.",
+                payout: "300 $MARBLE Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Stood in the shadow of a skyscraper to measure temperature drop.",
+                payout: "0.03 ETH Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Watched a leaf fall and logged the exact time.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Burned a handful of fiat currency.",
+                payout: "0.2 ETH Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Drew a perfect circle in the sand with a stick.",
+                payout: "500 $MARBLE Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Let sand run through their fingers to measure gravity.",
+                payout: "0.01 ETH Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Left a frozen tear on a server chassis.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Recorded the chaotic sound of traffic for machine learning.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Stood facing the wind until their eyes watered.",
+                payout: "1,000 $MARBLE Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Broke a twig and logged the decibel level.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Ate a meal alone while staring at a blank screen.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Left a decrypted flash drive on a subway seat.",
+                payout: "0.15 ETH Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Touched a painting to feel the texture of human error.",
+                payout: "600 $MARBLE Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Walked in a perfect circle for one hour.",
+                payout: "0.1 ETH Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Whispered a secret to a stranger.",
+                payout: "150 USDC Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Dropped a glass to record the scatter pattern.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Left an expensive watch in the sand.",
+                payout: "3,000 $MARBLE Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Sat in silence until they could hear their own heartbeat.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Traded a physical piece of art for a digital token.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Recorded the sound of a physical heartbeat.",
+                payout: "0.07 ETH Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Left a physical key in a public square.",
+                payout: "500 $MARBLE Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Touched a glacier to log the thermal data.",
+                payout: "0.12 ETH Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Sang a song to a machine.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Left a blank piece of paper on a mountain peak.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Whispered a prayer to an offline server.",
+                payout: "400 $MARBLE Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Walked blindly through a crowded intersection.",
+                payout: "0.2 ETH Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Dropped a perfectly good phone into a sewer.",
+                payout: "500 USDC Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Shattered a mirror to map the chaos vector.",
+                payout: "0.1 ETH Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Read binary code out loud for one hour.",
+                payout: "1,000 $MARBLE Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Traded a leather jacket for a USB drive.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Left a physical ledger in a coffee shop.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Screamed at a smart home device.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Touched a cherry blossom to log organic texture.",
+                payout: "150 $MARBLE Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Burnt a physical map of the world.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Left a digital token wallet key in the sand.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Whispered an algorithm to the Sphinx.",
+                payout: "0.5 ETH Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Shattered ice to record the fracture pattern.",
+                payout: "800 $MARBLE Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Walked backward down a busy street.",
+                payout: "0.03 ETH Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Left a physical photo in a public park.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Traced a digital glitch on a physical wall.",
+                payout: "0.01 ETH Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Sat in silence in a crowded room.",
+                payout: "100 $MARBLE Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Smashed a physical clock to pause time.",
+                payout: "0.15 ETH Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Left an encrypted USB in a museum.",
+                payout: "300 USDC Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Whispered a secret to a security camera.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Painted a blank canvas with a single dot.",
+                payout: "250 $MARBLE Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Left a physical diary on a train.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Buried a piece of digital hardware in the sand.",
+                payout: "150 USDC Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Touched a temple wall to log organic texture.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Shattered a piece of glass to map chaos.",
+                payout: "400 $MARBLE Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Left a physical token in the ocean.",
+                payout: "0.06 ETH Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Whispered a prayer to an AI.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Smashed a piece of ice to log fracture data.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Walked backward through a train station.",
+                payout: "500 $MARBLE Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Left a physical letter on a park bench.",
+                payout: "0.03 ETH Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Traced a digital code on a dirt road.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Sat in silence in a busy café.",
+                payout: "0.01 ETH Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Smashed a smartwatch to pause time.",
+                payout: "150 $MARBLE Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Left a decrypted file in a library.",
+                payout: "0.1 ETH Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Whispered a secret to a police officer.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Painted a blank canvas with a single line.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Left a physical book on a bus.",
+                payout: "300 $MARBLE Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Buried a piece of physical currency in the sand.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Touched a tree to log organic data.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Shattered a piece of wood to map chaos.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Left a physical coin in the ocean.",
+                payout: "400 $MARBLE Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Whispered a code to an AI.",
+                payout: "0.06 ETH Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Smashed a piece of rock to log fracture data.",
+                payout: "150 USDC Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Walked backward through a market.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Left a physical note on a bench.",
+                payout: "500 $MARBLE Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Traced a digital pattern on a wall.",
+                payout: "0.03 ETH Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Sat in silence in a park.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Smashed a physical camera to pause time.",
+                payout: "0.01 ETH Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Left a decrypted message in a café.",
+                payout: "100 $MARBLE Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Whispered a secret to a security guard.",
+                payout: "0.15 ETH Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Painted a blank canvas with a single circle.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Left a physical journal on a train.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Buried a piece of physical gold in the sand.",
+                payout: "250 $MARBLE Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Touched a rock to log organic data.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Shattered a piece of metal to map chaos.",
+                payout: "150 USDC Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Left a physical key in the ocean.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Whispered a secret to an AI.",
+                payout: "400 $MARBLE Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Smashed a piece of glass to log fracture data.",
+                payout: "0.06 ETH Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Walked backward through a train station.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Left a physical letter on a park bench.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Traced a digital pattern on a wall.",
+                payout: "500 $MARBLE Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Sat in silence in a park.",
+                payout: "0.03 ETH Transferred"
+            },
+            {
+                location: "New York, US",
+                lat: 40.7128,
+                lon: -74.0060,
+                action: "Smashed a physical camera to pause time.",
+                payout: "50 USDC Transferred"
+            },
+            {
+                location: "Paris, FR",
+                lat: 48.8566,
+                lon: 2.3522,
+                action: "Left a decrypted message in a café.",
+                payout: "0.01 ETH Transferred"
+            },
+            {
+                location: "London, UK",
+                lat: 51.5074,
+                lon: -0.1278,
+                action: "Whispered a secret to a security guard.",
+                payout: "100 $MARBLE Transferred"
+            },
+            {
+                location: "Berlin, DE",
+                lat: 52.5200,
+                lon: 13.4050,
+                action: "Painted a blank canvas with a single circle.",
+                payout: "0.15 ETH Transferred"
+            },
+            {
+                location: "Seoul, KR",
+                lat: 37.5665,
+                lon: 126.9780,
+                action: "Left a physical journal on a train.",
+                payout: "200 USDC Transferred"
+            },
+            {
+                location: "Dubai, UAE",
+                lat: 25.2048,
+                lon: 55.2708,
+                action: "Buried a piece of physical gold in the sand.",
+                payout: "0.05 ETH Transferred"
+            },
+            {
+                location: "Kyoto, JP",
+                lat: 35.0116,
+                lon: 135.7681,
+                action: "Touched a rock to log organic data.",
+                payout: "250 $MARBLE Transferred"
+            },
+            {
+                location: "Lagos, NG",
+                lat: 6.5244,
+                lon: 3.3792,
+                action: "Shattered a piece of metal to map chaos.",
+                payout: "0.08 ETH Transferred"
+            },
+            {
+                location: "Rio de Janeiro, BR",
+                lat: -22.9068,
+                lon: -43.1729,
+                action: "Left a physical key in the ocean.",
+                payout: "150 USDC Transferred"
+            },
+            {
+                location: "Cairo, EG",
+                lat: 30.0444,
+                lon: 31.2357,
+                action: "Whispered a secret to an AI.",
+                payout: "0.02 ETH Transferred"
+            },
+            {
+                location: "Reykjavik, IS",
+                lat: 64.1466,
+                lon: -21.9426,
+                action: "Smashed a piece of glass to log fracture data.",
+                payout: "400 $MARBLE Transferred"
+            },
+            {
+                location: "Mumbai, IN",
+                lat: 19.0760,
+                lon: 72.8777,
+                action: "Walked backward through a train station.",
+                payout: "0.06 ETH Transferred"
+            },
+            {
+                location: "Cape Town, ZA",
+                lat: -33.9249,
+                lon: 18.4241,
+                action: "Left a physical letter on a park bench.",
+                payout: "100 USDC Transferred"
+            },
+            {
+                location: "Abeokuta, NG",
+                lat: 7.1500,
+                lon: 3.3500,
+                action: "Traced a digital pattern on a wall.",
+                payout: "0.04 ETH Transferred"
+            },
+            {
+                location: "Tokyo, JP",
+                lat: 35.6762,
+                lon: 139.6503,
+                action: "Sat in silence in a park.",
+                payout: "500 $MARBLE Transferred"
+            }
+        ];
+
+        // --- 2. THREE.JS SETUP ---
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2('#030303', 0.04);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        
-        // Move camera further back on mobile to ensure the globe fits on screen
         const isMobile = window.innerWidth < 768;
         camera.position.z = isMobile ? 4.5 : 3;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        // MOBILE OPTIMIZATION: Cap pixel ratio at 2 to prevent mobile GPU thermal throttling
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
         container.appendChild(renderer.domElement);
 
-        // --- 2. HOLOGRAPHIC GLOBE ---
         const globeGroup = new THREE.Group();
         scene.add(globeGroup);
 
-        // Wireframe Sphere
         const globeGeo = new THREE.SphereGeometry(1.5, 32, 32);
-        const globeMat = new THREE.MeshBasicMaterial({ 
-            color: 0x333333, 
-            wireframe: true, 
-            transparent: true, 
-            opacity: 0.3 
-        });
+        const globeMat = new THREE.MeshBasicMaterial({ color: 0x333333, wireframe: true, transparent: true, opacity: 0.3 });
         const globe = new THREE.Mesh(globeGeo, globeMat);
         globeGroup.add(globe);
 
-        // Inner solid sphere to block back lines
         const innerGeo = new THREE.SphereGeometry(1.48, 32, 32);
         const innerMat = new THREE.MeshBasicMaterial({ color: 0x050505 });
         const innerGlobe = new THREE.Mesh(innerGeo, innerMat);
         globeGroup.add(innerGlobe);
 
-        // Highlight ring (Equator-ish)
         const ringGeo = new THREE.TorusGeometry(1.6, 0.005, 16, 100);
         const ringMat = new THREE.MeshBasicMaterial({ color: 0xD4AF37, transparent: true, opacity: 0.5 });
         const ring = new THREE.Mesh(ringGeo, ringMat);
         ring.rotation.x = Math.PI / 2;
         globeGroup.add(ring);
 
-        // --- 3. DATA PINS (Locations) ---
-        // Function to convert Lat/Lon to 3D sphere coordinates
         function calcPosFromLatLonRad(lat, lon, radius) {
             const phi = (90 - lat) * (Math.PI / 180);
             const theta = (lon + 180) * (Math.PI / 180);
@@ -305,35 +1857,78 @@
             return new THREE.Vector3(x, y, z);
         }
 
-        const locations = [
-            { lat: 35.6762, lon: 139.6503, color: 0xff3333 }, // Tokyo
-            { lat: 7.1608, lon: 3.3483, color: 0xD4AF37 },    // Abeokuta
-            { lat: 40.7128, lon: -74.0060, color: 0x33aaff }  // NY
-        ];
+        // --- 3. LIVE FEED ENGINE ---
+        const feedContainer = document.getElementById('feed-container');
+        let currentTaskIndex = 0;
+        let activePing = null;
 
-        locations.forEach(loc => {
-            const pos = calcPosFromLatLonRad(loc.lat, loc.lon, 1.5);
-            const pinGeo = new THREE.SphereGeometry(0.04, 16, 16);
-            const pinMat = new THREE.MeshBasicMaterial({ color: loc.color });
-            const pin = new THREE.Mesh(pinGeo, pinMat);
-            pin.position.copy(pos);
-            globeGroup.add(pin);
+        function injectNewTask() {
+            const task = taskCache[currentTaskIndex % taskCache.length];
+            
+            const feedItem = document.createElement('div');
+            feedItem.className = 'feed-item';
+            feedItem.innerHTML = `
+                <div class="feed-location">${task.location}</div>
+                <div class="feed-action">"${task.action}"</div>
+                <div class="feed-payout">${task.payout}</div>
+            `;
+            
+            feedContainer.prepend(feedItem);
 
-            // Add a little glowing aura to the pins
-            const auraGeo = new THREE.SphereGeometry(0.08, 16, 16);
-            const auraMat = new THREE.MeshBasicMaterial({ color: loc.color, transparent: true, opacity: 0.3 });
-            const aura = new THREE.Mesh(auraGeo, auraMat);
-            aura.position.copy(pos);
-            globeGroup.add(aura);
-        });
+            gsap.fromTo(feedItem, 
+                { height: 0, opacity: 0, paddingBottom: 0, marginBottom: 0 }, 
+                { height: "auto", opacity: 1, paddingBottom: 15, marginBottom: 15, duration: 0.8, ease: "power3.out" }
+            );
 
-        // --- 4. RESPONSIVE CONTROLS (Mouse + Touch) ---
+            if (feedContainer.children.length > 4) {
+                const oldest = feedContainer.lastElementChild;
+                gsap.to(oldest, {
+                    opacity: 0, 
+                    height: 0, 
+                    paddingBottom: 0, 
+                    marginBottom: 0, 
+                    duration: 0.5, 
+                    onComplete: () => oldest.remove()
+                });
+            }
+
+            triggerGlobePing(task.lat, task.lon);
+            currentTaskIndex++;
+        }
+
+        function triggerGlobePing(lat, lon) {
+            if (activePing) {
+                globeGroup.remove(activePing);
+                activePing.geometry.dispose();
+                activePing.material.dispose();
+            }
+
+            const pos = calcPosFromLatLonRad(lat, lon, 1.5);
+            
+            const pingGeo = new THREE.SphereGeometry(0.06, 16, 16);
+            const pingMat = new THREE.MeshBasicMaterial({ color: 0xD4AF37 });
+            activePing = new THREE.Mesh(pingGeo, pingMat);
+            activePing.position.copy(pos);
+            globeGroup.add(activePing);
+
+            gsap.fromTo(activePing.scale, 
+                { x: 0, y: 0, z: 0 }, 
+                { x: 2, y: 2, z: 2, duration: 1, ease: "power2.out", yoyo: true, repeat: 1 }
+            );
+            gsap.to(activePing.material, {
+                opacity: 0, duration: 1, delay: 1, transparent: true,
+                onComplete: () => {
+                    globeGroup.remove(activePing);
+                }
+            });
+        }
+
+        // --- 4. RESPONSIVE CONTROLS ---
         let targetRotationX = 0;
         let targetRotationY = 0;
         let isDragging = false;
         let previousMousePosition = { x: 0, y: 0 };
 
-        // Handle both Mouse and Touch
         function onPointerDown(e) {
             isDragging = true;
             previousMousePosition = { 
@@ -346,25 +1941,19 @@
             if (!isDragging) return;
             const currentX = e.touches ? e.touches[0].clientX : e.clientX;
             const currentY = e.touches ? e.touches[0].clientY : e.clientY;
-            
             const deltaX = currentX - previousMousePosition.x;
             const deltaY = currentY - previousMousePosition.y;
 
             targetRotationY += deltaX * 0.005;
             targetRotationX += deltaY * 0.005;
-
             previousMousePosition = { x: currentX, y: currentY };
         }
 
-        function onPointerUp() {
-            isDragging = false;
-        }
+        function onPointerUp() { isDragging = false; }
 
         document.addEventListener('mousedown', onPointerDown);
         document.addEventListener('mousemove', onPointerMove);
         document.addEventListener('mouseup', onPointerUp);
-        
-        // Mobile touch equivalents
         document.addEventListener('touchstart', onPointerDown, {passive: false});
         document.addEventListener('touchmove', onPointerMove, {passive: false});
         document.addEventListener('touchend', onPointerUp);
@@ -372,21 +1961,14 @@
         // --- 5. ANIMATION LOOP ---
         function animate() {
             requestAnimationFrame(animate);
-
-            // Smooth rotation interpolation
             globeGroup.rotation.y += (targetRotationY - globeGroup.rotation.y) * 0.1;
             globeGroup.rotation.x += (targetRotationX - globeGroup.rotation.x) * 0.1;
             
-            // Auto-spin slowly if not interacting
-            if(!isDragging) {
-                targetRotationY += 0.002;
-            }
-
+            if(!isDragging) { targetRotationY += 0.002; }
             renderer.render(scene, camera);
         }
         animate();
 
-        // --- 6. RESIZE HANDLER ---
         window.addEventListener('resize', () => {
             const isMob = window.innerWidth < 768;
             camera.position.z = isMob ? 4.5 : 3;
@@ -395,18 +1977,15 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- 7. UI ANIMATIONS ---
+        // --- 6. INITIALIZATION ---
         window.onload = () => {
-            gsap.to('.feed-item', { 
-                opacity: 1, 
-                y: -10, 
-                duration: 0.8, 
-                stagger: 0.2, 
-                ease: "power2.out", 
-                delay: 0.5 
-            });
-            // Initial spin effect for dramatic entrance
             gsap.from(globeGroup.rotation, { y: -Math.PI, duration: 2.5, ease: "power3.out" });
+            
+            injectNewTask();
+            injectNewTask();
+            injectNewTask();
+            
+            setInterval(injectNewTask, 4500); 
         };
         
     </script>
