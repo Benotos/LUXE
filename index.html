@@ -11,7 +11,7 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #010101; /* Deeper black */
+            background-color: #010101; 
             overflow: hidden;
             font-family: 'Space Grotesk', sans-serif;
             color: #E0E0E0;
@@ -24,8 +24,6 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            /* Add a subtle radial gradient overlay to burn the edges */
-            background: radial-gradient(circle at center, transparent 0%, #000000 100%);
         }
 
         /* Unified Global Navigation */
@@ -37,10 +35,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 2vh 5vw;
+            padding: 2vh 4vw;
             box-sizing: border-box;
             background: linear-gradient(to bottom, rgba(1,1,1,0.95) 0%, rgba(1,1,1,0) 100%);
-            backdrop-filter: blur(8px);
             z-index: 9999;
             pointer-events: auto;
         }
@@ -48,23 +45,23 @@
         .nav-brand {
             font-family: 'Cinzel', serif;
             color: #D4AF37;
-            font-size: clamp(1rem, 2vw, 1.2rem);
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
             text-decoration: none;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             text-transform: uppercase;
             text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
         }
 
         .nav-links {
             display: flex;
-            gap: 25px;
+            gap: 35px; /* Wider spacing for desktop */
         }
 
         .nav-links a {
             color: #A0A0A0;
             text-decoration: none;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             letter-spacing: 2px;
             text-transform: uppercase;
             transition: color 0.3s ease, text-shadow 0.3s ease;
@@ -86,9 +83,7 @@
                 flex-wrap: wrap;
                 justify-content: center;
             }
-            .nav-links a {
-                font-size: 0.7rem;
-            }
+            .nav-links a { font-size: 0.75rem; }
         }
 
         /* UI Overlay */
@@ -106,70 +101,77 @@
             pointer-events: none;
         }
 
+        /* NEW: The Readability Aura. This ensures perfect contrast on PC */
         .hero-text {
             text-align: center;
             opacity: 0; 
-            margin-top: -5vh; /* Lifted slightly to balance the CA tab */
+            margin-top: -2vh;
+            background: radial-gradient(circle, rgba(1,1,1,0.85) 0%, rgba(1,1,1,0.6) 40%, rgba(1,1,1,0) 75%);
+            padding: 80px 40px;
+            border-radius: 50%;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         h1 {
             font-family: 'Cinzel', serif;
-            font-size: clamp(2.5rem, 8vw, 5rem);
+            /* Scaled up massively for desktop monitors */
+            font-size: clamp(2.5rem, 8vw, 7rem);
             font-weight: 400;
-            letter-spacing: 15px;
+            letter-spacing: clamp(8px, 2vw, 20px);
             color: #D4AF37; 
             margin: 0;
             text-transform: uppercase;
-            text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
-            margin-left: 15px; /* Offset the letter-spacing */
+            /* Thicker shadows to separate from particles */
+            text-shadow: 0 5px 20px rgba(0,0,0,1), 0 0 30px rgba(212, 175, 55, 0.4);
         }
 
         p.subtitle {
-            font-size: clamp(1rem, 2.5vw, 1.4rem);
-            letter-spacing: 6px;
+            /* Scaled up for desktop */
+            font-size: clamp(1rem, 2vw, 1.6rem);
+            letter-spacing: clamp(4px, 1vw, 8px);
             margin-top: 20px;
-            color: #ccc;
+            color: #E0E0E0;
             text-transform: uppercase;
+            text-shadow: 0 2px 10px rgba(0,0,0,1);
         }
 
         .cryptic-quote {
-            margin-top: 40px;
+            margin-top: 30px;
             font-style: italic;
-            font-size: clamp(0.85rem, 1.5vw, 1rem);
-            color: #777;
-            max-width: 500px;
-            padding: 0 20px;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            color: #999;
+            /* Wider on desktop */
+            max-width: 700px;
             line-height: 1.8;
             text-align: center;
+            text-shadow: 0 2px 5px rgba(0,0,0,1);
         }
 
         /* The Ritual Button */
         .enter-btn {
             margin-top: 50px;
-            padding: 18px 50px;
+            padding: 18px 60px;
             background: rgba(212, 175, 55, 0.05);
-            border: 1px solid rgba(212, 175, 55, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.5);
             color: #D4AF37;
             font-family: 'Cinzel', serif;
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 1.5vw, 1.2rem);
             letter-spacing: 4px;
             cursor: pointer;
             pointer-events: auto; 
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            backdrop-filter: blur(4px);
+            transition: all 0.4s ease;
+            backdrop-filter: blur(5px);
         }
 
         .enter-btn:hover {
-            background: rgba(212, 175, 55, 0.2);
-            box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
-            border-color: #fff;
+            background: rgba(212, 175, 55, 0.15);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+            border-color: #D4AF37;
             color: #fff;
-            transform: scale(1.05);
         }
 
         /* CA Copy Tab */
@@ -178,35 +180,33 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            padding: 12px 24px;
-            background: rgba(5, 5, 5, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            gap: 15px;
+            padding: 12px 25px;
+            background: rgba(5, 5, 5, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.3);
             color: #D4AF37;
             cursor: pointer;
             pointer-events: auto; 
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            opacity: 0; 
-            border-radius: 2px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
         }
 
         .ca-container:hover {
-            background: rgba(212, 175, 55, 0.15);
+            background: rgba(212, 175, 55, 0.1);
             border-color: #D4AF37;
-            box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
         }
 
         .ca-label {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.8rem;
-            color: #888;
+            font-size: 0.85rem;
+            color: #777;
             letter-spacing: 2px;
         }
 
         .ca-address {
             font-family: monospace;
-            font-size: 0.95rem;
+            font-size: 1rem;
             letter-spacing: 1.5px;
             transition: color 0.3s ease;
         }
@@ -219,22 +219,24 @@
         }
 
         .ca-container:hover .copy-icon {
-            transform: scale(1.2);
+            transform: scale(1.15);
         }
 
         .status-bar {
             position: absolute;
             bottom: 30px;
-            left: 40px;
-            font-size: 0.75rem;
+            left: 4vw;
+            font-size: 0.8rem;
             letter-spacing: 3px;
             color: #666;
             display: flex;
             align-items: center;
             gap: 12px;
+            text-transform: uppercase;
         }
 
         @media (max-width: 768px) {
+            .hero-text { padding: 40px 10px; }
             .status-bar {
                 left: 50%;
                 transform: translateX(-50%);
@@ -251,8 +253,8 @@
         }
 
         @keyframes pulsate {
-            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.8); }
-            70% { box-shadow: 0 0 0 12px rgba(212, 175, 55, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.6); }
+            70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
             100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
         }
     </style>
@@ -301,31 +303,28 @@
         // --- 1. ADVANCED SCENE SETUP ---
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
-        // Deep, luxurious fog to hide the edges
-        scene.fog = new THREE.FogExp2('#010101', 0.04); 
+        // Thickened the fog to push the 3D elements further into the background
+        scene.fog = new THREE.FogExp2('#010101', 0.05); 
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 8; // Pulled back for grander scale
+        camera.position.z = 8;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        // Add tone mapping for a more cinematic, HDR look
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
+        renderer.toneMappingExposure = 1.0;
         container.appendChild(renderer.domElement);
 
-        // A master group to hold the entire Astrolabe so we can animate it easily
         const astrolabeGroup = new THREE.Group();
         scene.add(astrolabeGroup);
 
         // --- 2. THE CORE: DARK MATTER TORUS KNOT ---
-        // A complex mathematical shape rather than a simple sphere
-        const coreGeo = new THREE.TorusKnotGeometry(1.2, 0.4, 256, 64);
+        const coreGeo = new THREE.TorusKnotGeometry(1.2, 0.4, 128, 32); // Slightly optimized geometry
         const coreMat = new THREE.MeshStandardMaterial({
             color: 0x050505,
             metalness: 1.0,
-            roughness: 0.15,
+            roughness: 0.2,
             wireframe: false
         });
         const core = new THREE.Mesh(coreGeo, coreMat);
@@ -335,12 +334,12 @@
         const ringMaterial = new THREE.MeshStandardMaterial({ 
             color: 0xD4AF37, 
             metalness: 0.8, 
-            roughness: 0.2,
+            roughness: 0.3,
             transparent: true,
-            opacity: 0.6
+            opacity: 0.4 // Lowered opacity so they aren't distracting
         });
 
-        const ringGeo = new THREE.TorusGeometry(3.5, 0.02, 16, 100);
+        const ringGeo = new THREE.TorusGeometry(3.5, 0.015, 16, 100); // Made rings slightly thinner
         
         const ring1 = new THREE.Mesh(ringGeo, ringMaterial);
         const ring2 = new THREE.Mesh(ringGeo, ringMaterial);
@@ -360,39 +359,36 @@
             color: 0xD4AF37, 
             wireframe: true, 
             transparent: true, 
-            opacity: 0.1 
+            opacity: 0.04 // Drastically lowered opacity to clean up the center screen
         });
         const cage = new THREE.Mesh(cageGeo, cageMat);
         astrolabeGroup.add(cage);
 
 
-        // --- 5. MATHEMATICAL GALAXY PARTICLES ---
-        const particleCount = 6000;
+        // --- 5. SUBDUED GALAXY PARTICLES ---
+        const particleCount = 4000; // Reduced count for cleaner look
         const particlesGeometry = new THREE.BufferGeometry();
         const posArray = new Float32Array(particleCount * 3);
         const colorsArray = new Float32Array(particleCount * 3);
 
         const colorGold = new THREE.Color(0xD4AF37);
-        const colorDeep = new THREE.Color(0x332211); // Dark gold/bronze
+        const colorDeep = new THREE.Color(0x221105);
 
-        // Generate a 3-arm spiral galaxy shape
         for(let i = 0; i < particleCount; i++) {
             const i3 = i * 3;
-            const radius = Math.random() * 15;
+            const radius = Math.random() * 18;
             const spinAngle = radius * 1.5;
             const branchAngle = (i % 3) * ((Math.PI * 2) / 3); 
             
-            // Add some noise to the spiral
-            const randomX = (Math.random() - 0.5) * 1.5;
-            const randomY = (Math.random() - 0.5) * 1.5;
-            const randomZ = (Math.random() - 0.5) * 1.5;
+            const randomX = (Math.random() - 0.5) * 2;
+            const randomY = (Math.random() - 0.5) * 2;
+            const randomZ = (Math.random() - 0.5) * 2;
 
             posArray[i3] = Math.cos(spinAngle + branchAngle) * radius + randomX;
-            posArray[i3 + 1] = randomY * (2 - (radius * 0.1)); // Flatten the Y axis like a disc
+            posArray[i3 + 1] = randomY * (2 - (radius * 0.1)); 
             posArray[i3 + 2] = Math.sin(spinAngle + branchAngle) * radius + randomZ;
 
-            // Mix colors based on distance from center
-            const mixedColor = colorDeep.clone().lerp(colorGold, 1 - (radius / 15));
+            const mixedColor = colorDeep.clone().lerp(colorGold, 1 - (radius / 18));
             colorsArray[i3] = mixedColor.r;
             colorsArray[i3 + 1] = mixedColor.g;
             colorsArray[i3 + 2] = mixedColor.b;
@@ -402,10 +398,10 @@
         particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
 
         const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.04,
+            size: 0.02, // Halved the size of the particles
             vertexColors: true,
             transparent: true,
-            opacity: 0.8,
+            opacity: 0.35, // Dropped opacity heavily so it acts as true background
             blending: THREE.AdditiveBlending,
             depthWrite: false
         });
@@ -413,41 +409,20 @@
         const galaxy = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(galaxy);
 
-        // Floating geometric runes in the background
-        const runeGroup = new THREE.Group();
-        const runeGeo = new THREE.TetrahedronGeometry(0.1, 0);
-        for(let i=0; i<30; i++) {
-            const rune = new THREE.Mesh(runeGeo, cageMat);
-            rune.position.set(
-                (Math.random() - 0.5) * 20,
-                (Math.random() - 0.5) * 20,
-                (Math.random() - 0.5) * 20
-            );
-            rune.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
-            // Save a random speed to the object
-            rune.userData = { speedX: (Math.random()-0.5)*0.01, speedY: (Math.random()-0.5)*0.01 };
-            runeGroup.add(rune);
-        }
-        scene.add(runeGroup);
-
-
         // --- 6. DRAMATIC CINEMATIC LIGHTING ---
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
         scene.add(ambientLight);
 
-        // Deep red/purple backlight for the "Dark Matter" feel
-        const backLight = new THREE.PointLight(0x220033, 5, 20);
+        const backLight = new THREE.PointLight(0x220033, 4, 20);
         backLight.position.set(-5, -5, -5);
         scene.add(backLight);
 
-        // The "Soul Spark" - an intensely bright golden light that orbits the core
-        const sparkLight = new THREE.PointLight(0xD4AF37, 8, 10);
+        const sparkLight = new THREE.PointLight(0xD4AF37, 6, 12);
         scene.add(sparkLight);
 
-        // Add a tiny glowing core to represent the light visually
         const sparkCore = new THREE.Mesh(
-            new THREE.SphereGeometry(0.05, 16, 16),
-            new THREE.MeshBasicMaterial({ color: 0xffffff })
+            new THREE.SphereGeometry(0.04, 16, 16),
+            new THREE.MeshBasicMaterial({ color: 0xffeebb })
         );
         sparkLight.add(sparkCore);
 
@@ -478,40 +453,28 @@
             requestAnimationFrame(animate);
             const elapsedTime = clock.getElapsedTime();
 
-            // 1. Camera Parallax (Smoothly glide camera based on mouse)
             targetX = mouseX * 0.003;
             targetY = mouseY * 0.003;
             camera.position.x += (targetX - camera.position.x) * 0.05;
             camera.position.y += (-targetY - camera.position.y) * 0.05;
-            camera.lookAt(scene.position); // Always stare at the center
+            camera.lookAt(scene.position); 
 
-            // 2. Rotate the Core elements
-            core.rotation.y = elapsedTime * 0.2;
+            core.rotation.y = elapsedTime * 0.15;
             core.rotation.x = elapsedTime * 0.1;
             
-            ring1.rotation.y = elapsedTime * 0.3;
-            ring2.rotation.x = elapsedTime * 0.4;
-            ring3.rotation.z = elapsedTime * 0.2;
+            ring1.rotation.y = elapsedTime * 0.2;
+            ring2.rotation.x = elapsedTime * 0.3;
+            ring3.rotation.z = elapsedTime * 0.15;
 
-            cage.rotation.y = -elapsedTime * 0.05;
-            cage.rotation.x = -elapsedTime * 0.02;
+            cage.rotation.y = -elapsedTime * 0.03;
+            cage.rotation.x = -elapsedTime * 0.01;
 
-            // 3. Orbit the Soul Spark Light
-            sparkLight.position.x = Math.sin(elapsedTime * 1.5) * 2;
-            sparkLight.position.z = Math.cos(elapsedTime * 1.5) * 2;
-            sparkLight.position.y = Math.sin(elapsedTime * 0.8) * 1.5;
+            sparkLight.position.x = Math.sin(elapsedTime * 1.2) * 2;
+            sparkLight.position.z = Math.cos(elapsedTime * 1.2) * 2;
+            sparkLight.position.y = Math.sin(elapsedTime * 0.6) * 1.5;
 
-            // 4. Rotate the Galaxy
-            galaxy.rotation.y = -elapsedTime * 0.03;
+            galaxy.rotation.y = -elapsedTime * 0.02;
 
-            // 5. Drift the Runes
-            runeGroup.children.forEach(rune => {
-                rune.rotation.x += rune.userData.speedX;
-                rune.rotation.y += rune.userData.speedY;
-                rune.position.y += Math.sin(elapsedTime * 2 + rune.position.x) * 0.005;
-            });
-
-            // Gentle pulsing to the overall group reacting to mouse
             astrolabeGroup.rotation.y += 0.05 * (targetX - astrolabeGroup.rotation.y);
             astrolabeGroup.rotation.x += 0.05 * (targetY - astrolabeGroup.rotation.x);
 
@@ -542,16 +505,15 @@
 
         // --- 10. GSAP ENTRANCE ANIMATIONS ---
         window.onload = () => {
-            gsap.to('.hero-text', { opacity: 1, duration: 2.5, ease: "power2.inOut", delay: 0.5 });
-            gsap.from('h1', { y: 40, duration: 1.8, ease: "power3.out", delay: 0.8 });
-            gsap.from('.subtitle', { y: 20, opacity: 0, duration: 1.5, ease: "power3.out", delay: 1.4 });
-            gsap.from('.cryptic-quote', { opacity: 0, duration: 2, ease: "power2.inOut", delay: 2.2 });
-            gsap.from('.enter-btn', { y: 30, opacity: 0, duration: 1.5, ease: "power3.out", delay: 2.8 });
-            gsap.to('.ca-container', { opacity: 1, y: 0, duration: 1.2, ease: "power3.out", delay: 3.2 }); 
+            gsap.to('.hero-text', { opacity: 1, duration: 2.5, ease: "power2.inOut", delay: 0.2 });
+            gsap.from('h1', { y: 30, duration: 1.8, ease: "power3.out", delay: 0.5 });
+            gsap.from('.subtitle', { y: 20, opacity: 0, duration: 1.5, ease: "power3.out", delay: 1.0 });
+            gsap.from('.cryptic-quote', { opacity: 0, duration: 2, ease: "power2.inOut", delay: 1.6 });
+            gsap.from('.enter-btn', { y: 30, opacity: 0, duration: 1.5, ease: "power3.out", delay: 2.0 });
+            gsap.to('.ca-container', { opacity: 1, y: 0, duration: 1.2, ease: "power3.out", delay: 2.4 }); 
             gsap.from('#global-nav', { y: -50, opacity: 0, duration: 1.5, ease: "power3.out" });
 
-            // Entrance warp effect on the 3D scene
-            gsap.from(camera.position, { z: 20, duration: 3.5, ease: "power3.out" });
+            gsap.from(camera.position, { z: 15, duration: 4, ease: "power3.out" });
         };
 
         window.addEventListener('resize', () => {
@@ -562,22 +524,14 @@
 
         // --- 11. THE RITUAL (Hyperspace Transition) ---
         function initiateRitual() {
-            // Fade out the UI smoothly
             gsap.to(['.hero-text', '.ca-container', '#global-nav', '.status-bar'], { 
-                opacity: 0, duration: 0.8, ease: "power2.inOut" 
+                opacity: 0, duration: 0.6, ease: "power2.inOut" 
             });
             
-            // The Hyperspace effect:
-            // 1. Camera dives straight into the core
             gsap.to(camera.position, { z: -1, x: 0, y: 0, duration: 2.5, ease: "power4.in" });
-            
-            // 2. The galaxy spins furiously
-            gsap.to(galaxy.rotation, { y: "+=10", duration: 2.5, ease: "power3.in" });
-            
-            // 3. The astrolabe blows open
-            gsap.to(astrolabeGroup.scale, { x: 5, y: 5, z: 5, duration: 2.5, ease: "power3.in" });
+            gsap.to(galaxy.rotation, { y: "+=5", duration: 2.5, ease: "power3.in" });
+            gsap.to(astrolabeGroup.scale, { x: 4, y: 4, z: 4, duration: 2.5, ease: "power3.in" });
 
-            // Route to the Tasks page exactly as we breach the core
             setTimeout(() => {
                 window.location.href = 'tasks.html';
             }, 2300);
