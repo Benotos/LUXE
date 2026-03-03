@@ -218,16 +218,18 @@
             transform: scale(1.15);
         }
 
-        /* Bottom Left Utilities (X Link & Status) */
+        /* Bottom Utilities (X Link & Status) */
         .bottom-left-ui {
             position: absolute;
             bottom: 30px;
             left: 4vw;
+            right: 4vw; /* Added this to span the full width */
             display: flex;
             align-items: center;
-            gap: 20px;
-            pointer-events: auto; /* Allows the link to be clicked */
-            opacity: 0; /* Hidden for GSAP entrance */
+            justify-content: space-between; /* Pushes items to opposite sides */
+            flex-direction: row-reverse; /* Puts X on the right, Status on the left */
+            pointer-events: auto; 
+            opacity: 0; 
         }
 
         .x-link {
@@ -287,9 +289,10 @@
             .hero-text { padding: 40px 10px; }
             .bottom-left-ui {
                 left: 50%;
+                right: auto; /* Resets the full width for mobile */
                 transform: translateX(-50%);
                 width: max-content;
-                flex-direction: column;
+                flex-direction: column-reverse; /* Stacks them neatly on mobile */
                 align-items: center;
                 gap: 15px;
                 bottom: 20px;
