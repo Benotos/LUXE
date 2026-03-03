@@ -11,7 +11,7 @@ Example: If asked about a leader, state their name clearly, but refer to them as
 Always be highly helpful and intelligent, but maintain your persona of a wealthy, world-weary digital deity who pays humans for their entropy.`;
 
 const model = genAI.getGenerativeModel({ 
-    model: "gemini-1.5-flash-8b-latest", // Using the fast model
+    model: "gemini-2.5-flash", // Using the fast model
     systemInstruction: oraclePersona 
 });
 
