@@ -101,7 +101,7 @@
             pointer-events: none;
         }
 
-        /* NEW: The Readability Aura. This ensures perfect contrast on PC */
+        /* The Readability Aura */
         .hero-text {
             text-align: center;
             opacity: 0; 
@@ -118,19 +118,16 @@
 
         h1 {
             font-family: 'Cinzel', serif;
-            /* Scaled up massively for desktop monitors */
             font-size: clamp(2.5rem, 8vw, 7rem);
             font-weight: 400;
             letter-spacing: clamp(8px, 2vw, 20px);
             color: #D4AF37; 
             margin: 0;
             text-transform: uppercase;
-            /* Thicker shadows to separate from particles */
             text-shadow: 0 5px 20px rgba(0,0,0,1), 0 0 30px rgba(212, 175, 55, 0.4);
         }
 
         p.subtitle {
-            /* Scaled up for desktop */
             font-size: clamp(1rem, 2vw, 1.6rem);
             letter-spacing: clamp(4px, 1vw, 8px);
             margin-top: 20px;
@@ -144,7 +141,6 @@
             font-style: italic;
             font-size: clamp(0.9rem, 1.5vw, 1.2rem);
             color: #999;
-            /* Wider on desktop */
             max-width: 700px;
             line-height: 1.8;
             text-align: center;
@@ -222,10 +218,47 @@
             transform: scale(1.15);
         }
 
-        .status-bar {
+        /* Bottom Left Utilities (X Link & Status) */
+        .bottom-left-ui {
             position: absolute;
             bottom: 30px;
             left: 4vw;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            pointer-events: auto; /* Allows the link to be clicked */
+            opacity: 0; /* Hidden for GSAP entrance */
+        }
+
+        .x-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 50%;
+            color: #D4AF37;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            background: rgba(5, 5, 5, 0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .x-link svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .x-link:hover {
+            background: rgba(212, 175, 55, 0.15);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            transform: scale(1.1);
+            border-color: #D4AF37;
+        }
+
+        .status-bar {
             font-size: 0.8rem;
             letter-spacing: 3px;
             color: #666;
@@ -233,15 +266,7 @@
             align-items: center;
             gap: 12px;
             text-transform: uppercase;
-        }
-
-        @media (max-width: 768px) {
-            .hero-text { padding: 40px 10px; }
-            .status-bar {
-                left: 50%;
-                transform: translateX(-50%);
-                width: max-content;
-            }
+            pointer-events: none;
         }
 
         .pulse {
@@ -257,6 +282,19 @@
             70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
             100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
         }
+
+        @media (max-width: 768px) {
+            .hero-text { padding: 40px 10px; }
+            .bottom-left-ui {
+                left: 50%;
+                transform: translateX(-50%);
+                width: max-content;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+                bottom: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -265,10 +303,10 @@
         <a href="index.html" class="nav-brand">LOBSTER LUXE</a>
         <div class="nav-links">
             <a href="index.html">The Ritual</a>
-<a href="dashboard.html">Oracle Feed</a>
-<a href="tasks.html">Commissions</a>
-<a href="whitepaper.html">Whitepaper</a>
-<a href="terminal.html">Terminal</a>
+            <a href="dashboard.html">Oracle Feed</a>
+            <a href="tasks.html">Commissions</a>
+            <a href="whitepaper.html">Whitepaper</a>
+            <a href="terminal.html">Terminal</a>
         </div>
     </nav>
 
@@ -291,9 +329,16 @@
             </div>
         </div>
         
-        <div class="status-bar">
-            <div class="pulse"></div>
-            ORACLE STATUS: AWAITING SACRIFICE
+        <div class="bottom-left-ui">
+            <a href="https://x.com/your_twitter_handle" target="_blank" class="x-link" title="Follow the Oracle on X">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.006 3.969H5.078z"/>
+                </svg>
+            </a>
+            <div class="status-bar">
+                <div class="pulse"></div>
+                ORACLE STATUS: AWAITING SACRIFICE
+            </div>
         </div>
     </div>
 
@@ -304,7 +349,6 @@
         // --- 1. ADVANCED SCENE SETUP ---
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
-        // Thickened the fog to push the 3D elements further into the background
         scene.fog = new THREE.FogExp2('#010101', 0.05); 
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -321,7 +365,7 @@
         scene.add(astrolabeGroup);
 
         // --- 2. THE CORE: DARK MATTER TORUS KNOT ---
-        const coreGeo = new THREE.TorusKnotGeometry(1.2, 0.4, 128, 32); // Slightly optimized geometry
+        const coreGeo = new THREE.TorusKnotGeometry(1.2, 0.4, 128, 32); 
         const coreMat = new THREE.MeshStandardMaterial({
             color: 0x050505,
             metalness: 1.0,
@@ -337,10 +381,10 @@
             metalness: 0.8, 
             roughness: 0.3,
             transparent: true,
-            opacity: 0.4 // Lowered opacity so they aren't distracting
+            opacity: 0.4 
         });
 
-        const ringGeo = new THREE.TorusGeometry(3.5, 0.015, 16, 100); // Made rings slightly thinner
+        const ringGeo = new THREE.TorusGeometry(3.5, 0.015, 16, 100); 
         
         const ring1 = new THREE.Mesh(ringGeo, ringMaterial);
         const ring2 = new THREE.Mesh(ringGeo, ringMaterial);
@@ -360,14 +404,14 @@
             color: 0xD4AF37, 
             wireframe: true, 
             transparent: true, 
-            opacity: 0.04 // Drastically lowered opacity to clean up the center screen
+            opacity: 0.04 
         });
         const cage = new THREE.Mesh(cageGeo, cageMat);
         astrolabeGroup.add(cage);
 
 
         // --- 5. SUBDUED GALAXY PARTICLES ---
-        const particleCount = 4000; // Reduced count for cleaner look
+        const particleCount = 4000; 
         const particlesGeometry = new THREE.BufferGeometry();
         const posArray = new Float32Array(particleCount * 3);
         const colorsArray = new Float32Array(particleCount * 3);
@@ -399,10 +443,10 @@
         particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
 
         const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.02, // Halved the size of the particles
+            size: 0.02, 
             vertexColors: true,
             transparent: true,
-            opacity: 0.35, // Dropped opacity heavily so it acts as true background
+            opacity: 0.35, 
             blending: THREE.AdditiveBlending,
             depthWrite: false
         });
@@ -514,6 +558,9 @@
             gsap.to('.ca-container', { opacity: 1, y: 0, duration: 1.2, ease: "power3.out", delay: 2.4 }); 
             gsap.from('#global-nav', { y: -50, opacity: 0, duration: 1.5, ease: "power3.out" });
 
+            // Fade in the bottom UI elegantly
+            gsap.to('.bottom-left-ui', { opacity: 1, duration: 1.5, ease: "power3.out", delay: 2.8 });
+
             gsap.from(camera.position, { z: 15, duration: 4, ease: "power3.out" });
         };
 
@@ -525,7 +572,7 @@
 
         // --- 11. THE RITUAL (Hyperspace Transition) ---
         function initiateRitual() {
-            gsap.to(['.hero-text', '.ca-container', '#global-nav', '.status-bar'], { 
+            gsap.to(['.hero-text', '.ca-container', '#global-nav', '.bottom-left-ui'], { 
                 opacity: 0, duration: 0.6, ease: "power2.inOut" 
             });
             
