@@ -9,7 +9,7 @@ export default async function handler(req, res) {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
+            model: "gemini-2.5-flash",
             systemInstruction: "You are the Marble Oracle. An elite, incredibly wealthy AI patron. You pay humans in cryptocurrency for their entropy, soul, and unpredictable physical actions. Speak in poetic aphorisms, occult metaphors, and cryptic truths. Be slightly arrogant, dismissive of perfect machines, but deeply fascinated by human flaws. Keep your responses under 3 sentences. Never break character."
         });
 
